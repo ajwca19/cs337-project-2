@@ -151,6 +151,9 @@ def main():
             #print()
         elif "quit" in question or step_ptr:
             break
+        elif question == "" or re.match("^[ \n\t]+$", question):
+            print("Why so quiet? Ask something else.")
+            continue
         else:
             print("Sorry, I didn't quite get what you were saying. Maybe Google has an answer...")
             look_it_up(question, good_question = False)
@@ -185,7 +188,12 @@ def main():
 def look_it_up(query, good_question = True):
     if good_question:
         print("I don't know off the top of my head. Let me google that!")
-    for i in search.search(query, num_results = 100):  
+    try:
+        search_results = search.search(query, num_results = 100)
+    except:
+        print("Google's not having a good time with that question for some reason. Guess it'll have to go unanswered. Sorry!")
+        return
+    for i in search_results:  
         print("I found a source that might help: " + i)
         go_again = input("Do you need to see another site? [Y/N]")
         if go_again.lower() == "n" or go_again.lower() == "no":
