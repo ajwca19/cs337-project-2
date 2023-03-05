@@ -37,7 +37,7 @@ def main():
                       "paper towel", "food processor", "processor", "skillet", "baking dish", "saute pan"]
 
     # Creating a list of units of time
-    units_of_time_list = ["second", "seconds", "minute", "minutes", "hour", "hours"]
+    units_of_time_list = ["second", "seconds", "minute", "minutes", "hour", "hours", "day", "days", "overnight"]
 
     # Creating a list of common temperature levels used in cooking
     temp_levels_list = ["low", "-", "medium", "high", "simmer", "boil"]
@@ -76,8 +76,14 @@ def main():
             after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
             while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
                 ingredient_question = input("Ask away!")
-                answer_question(ingredient_question, ingredients_parsed, directions_parsed)
-                after_ingredients = input("Do you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
+                if re.search("substitut[e|ion]|replace", ingredient_question):
+                    #REPLACE THIS WHEN IT'S DONE
+                    print("I'm still learning how to substitute ingredients in a recipe. For now, I'll let Google answer.")
+                    look_it_up(ingredient_question, good_question = False)
+                elif re.search("[Ww]hat (is|are)", ingredient_question):
+                    look_it_up(ingredient_question)
+                elif
+                after_ingredients = input("Do you [1] have more questions or [2] want to get started cooking?")
             print("Glad I could help! Let's get cooking!")
             break
         elif get_started == "2" or "start" in get_started.lower() or "cook" in get_started.lower():
@@ -104,6 +110,8 @@ def main():
     #read out the first step of a recipe
     step_ptr = 0
     print("Step 1: " + steps.loc[step_ptr].raw_text)
+    
+    
     #start asking questions/navigating
     while True:
         question = input()
@@ -155,7 +163,12 @@ def main():
             #question is asking what step I'm on
             print("You're on step " + str(step_ptr + 1) + " out of " + str(len(steps)))
         
-        #questions that contain the word how
+        #question is asking about a replacement or substitution
+        elif re.search("substitut(e|ion)|replace", question):
+            print("I'm still learning how to substitute ingredients in a recipe. For now, I'll let Google answer.")
+                    look_it_up(ingredient_question, good_question = False)
+                
+        #other questions that contain the word how
         elif re.search("[Hh]ow", question):
             if re.search("[Hh]ow long", question):
                 #talking about time
@@ -168,12 +181,70 @@ def main():
                     print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
             elif re.search("[Hh]ow (hot|cold|warm|high|low)", question):
                 if steps.loc[step_ptr].action_temperature != "":
-                    #there's some duration mentioned
+                    #there's some temperature mentioned
                     print(step.loc[step_ptr].action_temperature)
                 else:
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
                     print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
+            elif re.search("[Hh]ow (much|many)", question):
+                about_time = False:
+                for unit in units_of_time_list:
+                    if re.search(unit, question):
+                        about_time = True
+                if about_time:
+                    #question is about duration
+                    if steps.loc[step_ptr].action_duration != "":
+                        #there's some duration mentioned in the step
+                        print(steps.loc[step_ptr].action_duration)
+                    else:
+                        print("I can't find anything in this step about time. Let me look around.")
+                        step, duration = nearest_field("duration", step_ptr, ingredients, steps)
+                        print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
+                else:
+                    #question is about quantity
+                    relevant_ingredient = identify_relevant_ingredient(question)
+                    if relevant_ingredient = "":
+                        print("I can't tell which ingredient you're asking about. Can you rephrase the question?")
+                        continue
+                    else:
+                        local_amount = steps.loc[step_ptr].ingredient_amount
+                        local_units = steps.loc[step_ptr].ingredient_unit
+                        if len(local_amount) == 0:
+                            print("The recipe calls for " + relevant_ingredient)
+                        else:
+                            local_ingredients = steps.loc[step_ptr].ingredient
+                            ingredient_index = -1
+                            for i in range(len(local_ingredients)):
+                                if re.search(local_ingredients[i], relevant_ingredient):
+                                    #the amount is specified in the step
+                                    print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                            if ingredient_index = -1:
+                                print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
+            
+            #HOW TO/HOW DO I SHOULD BE THE LOWEST PRIORITY "HOW" QUESTION ANSWERED
+            elif re.search("[Hh]ow (do|to)", question):
+                all_actions = steps["action"].tolist()
+                found_action = False
+                for action in all_actions:
+                    if action.lower() in question:
+                        #the question is a valid one to ask Google
+                        print("I don't know how to " + action.lower() + ". Let me ask Google!")
+                        found_action = True
+                        look_it_up(question, good_question = False)
+                if found_action == False:
+                    #simple "How do I do that" inferring an answer
+                    predicted_action = steps.loc[step_ptr].action
+                    if predicted_action != "":
+                        print("I don't know how to " + predicted_action.lower() + ". I'll ask Google.")
+                        look_it_up("how to "+ predicted_action.lower(), good_question = False)
+                    else:
+                        print("I can't figure out what you're asking me about.")
+                        look_it_up("how to " + input("What am I asking Google how to do?"), good_question = False)
+            else:
+                print("I don't understand your question. Can you ask it again a different way?")
+                continue
+
         #questions that contain the word what
         elif re.search("[Ww]hat", question):
             if re.search("ingredient", question):
@@ -194,6 +265,49 @@ def main():
                         print("I didn't quite get that. Here's the ingredients for the entire recipe:")
                         for i in ingredients_raw:
                             print(i)
+            elif re.search("temperature|heat", question):
+                if steps.loc[step_ptr].action_temperature != "":
+                    #there's some temperature mentioned
+                    print(step.loc[step_ptr].action_temperature)
+                else:
+                    print("I can't find anything in this step about temperature. Let me look around.")
+                    step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
+                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
+            elif re.search("time", question):
+                #talking about time
+                if steps.loc[step_ptr].action_duration != "":
+                    #there's some duration mentioned
+                    print(step.loc[step_ptr].action_duration)
+                else:
+                    print("I can't find anything in this step about time. Let me look around.")
+                    step, duration = nearest_field("duration", step_ptr, ingredients, steps)
+                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
+            elif re.search("amount|quantity", question):
+                #talking about quantity
+                #question is about quantity
+                relevant_ingredient = identify_relevant_ingredient(question)
+                if relevant_ingredient = "":
+                    print("I can't tell which ingredient you're asking about. Can you rephrase the question?")
+                    continue
+                else:
+                    local_amount = steps.loc[step_ptr].ingredient_amount
+                    local_units = steps.loc[step_ptr].ingredient_unit
+                    if len(local_amount) == 0:
+                        print("The recipe calls for " + relevant_ingredient)
+                    else:
+                        local_ingredients = steps.loc[step_ptr].ingredient
+                        ingredient_index = -1
+                        for i in range(len(local_ingredients)):
+                            if re.search(local_ingredients[i], relevant_ingredient):
+                                #the amount is specified in the step
+                                print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                        if ingredient_index = -1:
+                            print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
+            else:
+                print("I don't understand your question. Can you ask it another way?")
+                continue
+                    
+        #metadata/control of the application            
         elif question.lower() == "quit":
             break
         elif question.lower() == "help":
@@ -204,14 +318,20 @@ def main():
             print("Ingredient substitutions: I'm still learning, but ask me if you need to replace something")
             print("If you're ever confused, type \"help\". If you want to quit recipe guidance, I won't be offended either. Just type \"quit\" at any point")
             print("Let's get back to cooking now.")
+            
+        #other fun little quirky answers    
         elif question == "" or re.match("^[ \n\t]+$", question):
             print("Why so quiet? Ask something else.")
             continue
         elif re.search("[Tt]hank(s| you)", question):
             print("You're welcome!")
+        
+        #question answering via google
         else:
             print("Sorry, I didn't quite get what you were saying. Maybe Google has an answer...")
             look_it_up(question, good_question = False)
+            
+        #finished answering a question, ask if you want to move on
         if step_ptr < len(steps) - 1:
             move_on = input("Would you like to move on to step " + str(step_ptr + 2) + "? [Y/N]")
             if "y" == move_on.lower() or "yes" in move_on.lower():
@@ -310,7 +430,7 @@ def nearest_field(field, step_ptr, ingredients, steps):
     
 def pretty_list_print(string_list):
     final_string = ""
-    for i in range(len(string_list - 1)):
+    for i in range(len(string_list) - 1):
         final_string += string_list[i] + ", "
     final_string += string_list[-1]
     return final_string
@@ -333,6 +453,25 @@ def look_it_up(query, good_question = True):
     except:
         print("Google's not having a good time with that question for some reason. Guess it'll have to go unanswered. Sorry!")
         return
-            
+
+def identify_relevant_ingredient(question, ingredients_list, units_list, units_conversion): 
+    parsed_question = nlp(question)
+    for token in parsed_question:
+        if re.search("[Hh]ow", token.text):
+            continue
+        elif re.search("many|much", token.text):
+            continue
+        elif token.lemma_ in units_list or token.text in units_conversion.keys():
+            continue
+        elif token.text in ["of", "in"]:
+            continue
+        elif token.pos_ != "NOUN":
+            continue
+        else:
+            for ingredient in ingredients_list:
+                if token.text in ingredient:
+                    return ingredient
+            return ""
+    
 if __name__ == "__main__":
     main()
