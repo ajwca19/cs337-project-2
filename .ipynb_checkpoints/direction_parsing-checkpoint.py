@@ -238,5 +238,5 @@ direction_df = equipment_infer(direction_df)
 
 
 # Displaying the cleaned search table, not necessary for final program
-for i in range(len(direction_df)):
-    print(direction_df.loc[i].to_string())
+#for i in range(len(direction_df)):
+#    print(direction_df.loc[i].to_string())
