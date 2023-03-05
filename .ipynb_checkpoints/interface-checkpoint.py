@@ -46,9 +46,11 @@ def main():
         #enter a recipe to begin!
         print("Hi! I'm CARA - your Computer-Aided Recipe Assistant. Let's cook a meal!")
         recipe_url = input("Paste a recipe URL here to follow!")
-    
+        while not re.match("^http(s)?://[a-zA-Z0-9;,/?:@&=+$-_.!~*'()#]+$", recipe_url):
+            print("This doesn't look like a URL to me:")
+            recipe_url = input("Paste a recipe URL here to follow!")
         #scrape the recipe
-        ingredients_raw, directions_raw = web_scraping.recipe_extract(recipe_link)
+        ingredients_raw, directions_raw = web_scraping.recipe_extract(recipe_url)
         if len(ingredients_raw) != 0 and len(directions_raw) != 0:
             print("Sounds delicious! I'm ready to go when you are!")
             break
@@ -61,14 +63,17 @@ def main():
     #get list of steps
     steps = direction_parsing.direction_search_table(directions_raw, ingredients, units_list, unit_conversion, equipment_list, units_of_time_list, temp_levels_list)
     
+    print("I just looked it over: the recipe you picked calls for " + str(len(ingredients)) + " ingredients and has " 
+         + str(len(steps)) + " steps.")
+    
     #ask about initial viewing
     get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
     while True:
         if get_started == "1" or "ingredient" in get_started.lower():
-            print("Got it. For this recipe, you will need...")
+            print("Got it. For this recipe, you will need...\n")
             for i in ingredients_raw:
                 print(i)
-            after_ingredients = input("Do you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
+            after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
             while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
                 ingredient_question = input("Ask away!")
                 answer_question(ingredient_question, ingredients_parsed, directions_parsed)
@@ -83,16 +88,22 @@ def main():
             get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
     
     assistant_guide = input("Before we get started, do you want to know what I can do? [Y/N]")
-    if "y" in assistant_guide.lower():
+    if "y" == assistant_guide.lower() or "yes" in assistant_guide.lower():
+        #give a list of sample questions
         print("Okay! Here's a list of things that you can ask me about:")
-        print("")
-    elif "n" in assistant_guide.lower():
+        print("Recipe navigation: ask me to move forward, back, or repeat a step")
+        print("Cooking explainers: ask me how to do something, or what an unfamiliar piece of equipment or ingredient is")
+        print("Recipe clarifications: ask me how much of something you need, how long it cooks for, how hot, etc.")
+        print("Ingredient substitutions: I'm still learning, but ask me if you need to replace something")
+        print("If you're ever confused, type \"help\". If you want to quit recipe guidance, I won't be offended either. Just type \"quit\" at any point")
+        print("Let's get started with the recipe!")
+    elif "n" == assistant_guide.lower() or "no" in assistant_guide.lower():
         print("Don't worry, I'm itching to get started too.")
     else:
         print("I didn't quite get that. We can get started, but try to be nicer next time! I can only help you if I know what you're asking.")
     #read out the first step of a recipe
     step_ptr = 0
-    
+    print("Step 1: " + steps.loc[step_ptr].raw_text)
     #start asking questions/navigating
     while True:
         question = input()
@@ -100,43 +111,87 @@ def main():
             #question is going back a step
             print("Sure, we can go back a step!\nThe previous step says the following:")
             step_ptr-=1
-            print(steps[step_ptr])
+            print("Step " + str(step_ptr + 1) +": " + steps.loc[step_ptr].raw_text)
+            continue
         elif re.search("[Rr]epeat|[Aa]gain|[Oo]n(c)?e more", question):
             #question is repeating the most recent step
             print("One more time? Okay! You need to do the following:")
-            print(steps[step_ptr])
+            print(steps.loc[step_ptr].raw_text)
+            continue
         elif re.search("[Nn]ext|[Aa]fter|O[Kk](ay)?|[Yy]es", question):
             #question is asking to move forward
-            print("The next step says to do the following:")
-            step_ptr+=1
-            print(steps[step_ptr])
+            if step_ptr < len(steps) - 1:
+                print("The next step says to do the following:")
+                step_ptr+=1
+                print("Step " + str(step_ptr + 1) +": " + steps.loc[step_ptr].raw_text)
+                continue
+            else:
+                print("We're on the last step already!")
+                keep_going = input("Do you have any more questions? [Y/N]")
+                if keep_going.lower() == "y" or "yes" in keep_going.lower():
+                    print("Ask away!")
+                    continue
+                elif keep_going.lower() == "n" or "no" in keep_going.lower() or "quit" in keep_going.lower():
+                    print("Thanks for working with me! Bon appetit!")
+                    break
+                else:
+                    print("I didn't quite catch that, but I think you're good to go! Bon appetit!")
+                    break
+        elif re.search("[Ww]hat step", question) or re.search("[Hh]ow many steps", question):
+            #question is asking what step I'm on
+            print("You're on step " + str(step_ptr + 1) + " out of " + str(len(steps)))
         elif re.search("[Hh]ow", question):
             if re.search("[Hh]ow long", question):
                 #talking about time
                 print()
-            if re.search("[Hh]ow (hot|cold|warm|high|low)", question):
+            elif re.search("[Hh]ow (hot|cold|warm|high|low)", question):
                 #talking about temperature
                 print()
-        elif contains_ingredient(question):
-            print()
+        #elif contains_ingredient(question):
+            #print()
         elif "quit" in question or step_ptr:
             break
         else:
             print("Sorry, I didn't quite get what you were saying. Maybe Google has an answer...")
             look_it_up(question, good_question = False)
+        if step_ptr < len(steps) - 1:
+            move_on = input("Would you like to move on to step " + str(step_ptr + 1) + "? [Y/N]")
+            if "y" == move_on.lower() or "yes" in move_on.lower():
+                print("Sure thing!")
+                step_ptr += 1
+                print("Step " + str(step_ptr + 1) +": " + steps.loc[step_ptr].raw_text)
+            elif "n" == move_on.lower() or "no" in move_on.lower():
+                print("Okay!")
+            else:
+                print("I didn't quite get that. We can stay on this step for now.")
+        else:
+            #we're on the last step!
+            print("We're on the last step already!")
+            keep_going = input("Do you have any more questions? [Y/N]")
+            if keep_going.lower() == "y" or "yes" in keep_going.lower():
+                print("Ask away!")
+                continue
+            elif keep_going.lower() == "n" or "no" in keep_going.lower() or "quit" in keep_going.lower():
+                print("Thanks for working with me! Bon appetit!")
+                break
+            else:
+                print("I didn't quite catch that, but I think you're good to go! Bon appetit!")
+                break
+        
 
 #def answer_question(question, ingredients, directions):
-    
+
+
 def look_it_up(query, good_question = True):
     if good_question:
         print("I don't know off the top of my head. Let me google that!")
-    for i in search(query, num_results = 100):  
+    for i in search.search(query, num_results = 100):  
         print("I found a source that might help: " + i)
         go_again = input("Do you need to see another site? [Y/N]")
         if go_again.lower() == "n" or go_again.lower() == "no":
             print("Great! Glad I could help.")
             break
-        elif go_again.lower() != "y" and go_ahead.lower() != "yes":
+        elif go_again.lower() != "y" and go_again.lower() != "yes":
             print("I didn't quite get that, but I'm assuming you're good for now.")
             break
             
