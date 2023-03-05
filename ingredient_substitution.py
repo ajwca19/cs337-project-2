@@ -93,12 +93,11 @@ substitution_dictionary = {
 
 # Generating a dictionary of foods you cannot eat on common diets
 diet_dictionary = {
-
-
+	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish'],
+	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey'],
+	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
+	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
+	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels'],
+	'halal': ['alcohol', 'vanilla extract', 'pork'],
+	'hindu': ['beef']
 }
-
-
-
-
-
-print(substitution_dictionary)
