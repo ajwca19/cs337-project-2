@@ -107,6 +107,7 @@ def main():
     #start asking questions/navigating
     while True:
         question = input()
+        #navigation takes priority
         if re.search("step", question) and re.search("[0-9]+", question):
             new_step = int(re.search("[0-9]+", question)[0])
             if new_step <= len(steps) and new_step > 0:
@@ -124,9 +125,13 @@ def main():
             continue
         elif re.search("[Rr]epeat|[Aa]gain|[Oo]n(c)?e more", question):
             #question is repeating the most recent step
-            print("One more time? Okay! You need to do the following:")
-            print(steps.loc[step_ptr].raw_text)
-            continue
+            if re.search("[Ii]ngredient", question):
+                print("Here's the list of ingredients for the recipe once more:")
+                for i in ingredients_raw:
+                    print(i)
+            else:
+                print("One more time? Okay! You need to do the following:")
+                print(steps.loc[step_ptr].raw_text)
         elif re.search("[Nn]ext|[Aa]fter|O[Kk](ay)?|[Yy]es", question):
             #question is asking to move forward
             if step_ptr < len(steps) - 1:
@@ -149,6 +154,8 @@ def main():
         elif re.search("[Ww]hat step", question) or re.search("[Hh]ow many steps", question):
             #question is asking what step I'm on
             print("You're on step " + str(step_ptr + 1) + " out of " + str(len(steps)))
+        
+        #questions that contain the word how
         elif re.search("[Hh]ow", question):
             if re.search("[Hh]ow long", question):
                 #talking about time
@@ -167,13 +174,36 @@ def main():
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
                     print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
-            elif re.search("ingredient", question):
+        #questions that contain the word what
+        elif re.search("[Ww]hat", question):
+            if re.search("ingredient", question):
                 if len(steps.loc[step_ptr].ingredient_name) > 0:
-                    print(steps.loc[step_ptr].ingredient_name)
-        #elif contains_ingredient(question):
-            #print()
-        elif "quit" in question:
+                    print(pretty_list_print(steps.loc[step_ptr].ingredient_name))
+                else:
+                    print("I can't find anything about ingredients in this step.")
+                    where_to_look = input("Should I [1] look around to nearby steps, or [2] tell you the ingredient list again?")
+                    if "1" in where_to_look:
+                        print("Okay. I'll look now.")
+                        step, ingredient_name = nearest_field("ingredient", step_ptr, ingredients, steps)
+                        print("I found this information in step " + str(step) + ". I hope it helps: " + pretty_list_print(ingredient_name))
+                    elif "2" in where_to_look:
+                        print("Here's the list of ingredients for the whole recipe:")
+                        for i in ingredients_raw:
+                            print(i)
+                    else:
+                        print("I didn't quite get that. Here's the ingredients for the entire recipe:")
+                        for i in ingredients_raw:
+                            print(i)
+        elif question.lower() == "quit":
             break
+        elif question.lower() == "help":
+            print("Okay! Here's a list of things that you can ask me about:")
+            print("Recipe navigation: ask me to move forward, back, or repeat a step")
+            print("Cooking explainers: ask me how to do something, or what an unfamiliar piece of equipment or ingredient is")
+            print("Recipe clarifications: ask me how much of something you need, how long it cooks for, how hot, etc.")
+            print("Ingredient substitutions: I'm still learning, but ask me if you need to replace something")
+            print("If you're ever confused, type \"help\". If you want to quit recipe guidance, I won't be offended either. Just type \"quit\" at any point")
+            print("Let's get back to cooking now.")
         elif question == "" or re.match("^[ \n\t]+$", question):
             print("Why so quiet? Ask something else.")
             continue
@@ -270,16 +300,6 @@ def nearest_field(field, step_ptr, ingredients, steps):
                 after_step = after_ptr
                 after_answer = steps.loc[after_ptr].equipment
                 break
-        elif field == "ingredient":
-            if steps.loc[after_ptr].ingredient_name != []:
-                after_step = after_ptr
-                after_answer = steps.loc[after_ptr].ingredient_name
-                break
-        elif field == "amount":
-            if steps.loc[after_ptr].ingredient_amount != []:
-                after_step = after_ptr
-                after_answer = steps.loc[after_ptr].ingredient_amount #CHANGE ME
-                break
         else:
             return (-1, "")
         after_ptr += 1
@@ -288,7 +308,12 @@ def nearest_field(field, step_ptr, ingredients, steps):
     else:
         return (before_step, before_answer)
     
-
+def pretty_list_print(string_list):
+    final_string = ""
+    for i in range(len(string_list - 1)):
+        final_string += string_list[i] + ", "
+    final_string += string_list[-1]
+    return final_string
 
 def look_it_up(query, good_question = True):
     if good_question:
