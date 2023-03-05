@@ -107,7 +107,16 @@ def main():
     #start asking questions/navigating
     while True:
         question = input()
-        if re.search("[Ll]ast|[Pp]revious|[Bb]ack|[Bb]efore", question):
+        if re.search("step", question) and re.search("[0-9]+", question):
+            new_step = int(re.search("[0-9]+", question)[0])
+            if new_step <= len(steps) and new_step > 0:
+                print("Moving you to step " + str(new_step) + ".")
+                step_ptr = new_step - 1
+                print("Step " + str(new_step) + ": " + steps.loc[step_ptr].raw_text)
+                continue
+            else:
+                print("That's an invalid step number. Sorry!")
+        elif re.search("[Ll]ast|[Pp]revious|[Bb]ack|[Bb]efore", question):
             #question is going back a step
             print("Sure, we can go back a step!\nThe previous step says the following:")
             step_ptr-=1
@@ -143,22 +152,38 @@ def main():
         elif re.search("[Hh]ow", question):
             if re.search("[Hh]ow long", question):
                 #talking about time
-                print()
+                if steps.loc[step_ptr].action_duration != "":
+                    #there's some duration mentioned
+                    print(step.loc[step_ptr].action_duration)
+                else:
+                    print("I can't find anything in this step about time. Let me look around.")
+                    step, duration = nearest_field("duration", step_ptr, ingredients, steps)
+                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
             elif re.search("[Hh]ow (hot|cold|warm|high|low)", question):
-                #talking about temperature
-                print()
+                if steps.loc[step_ptr].action_temperature != "":
+                    #there's some duration mentioned
+                    print(step.loc[step_ptr].action_temperature)
+                else:
+                    print("I can't find anything in this step about temperature. Let me look around.")
+                    step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
+                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
+            elif re.search("ingredient", question):
+                if len(steps.loc[step_ptr].ingredient_name) > 0:
+                    print(steps.loc[step_ptr].ingredient_name)
         #elif contains_ingredient(question):
             #print()
-        elif "quit" in question or step_ptr:
+        elif "quit" in question:
             break
         elif question == "" or re.match("^[ \n\t]+$", question):
             print("Why so quiet? Ask something else.")
             continue
+        elif re.search("[Tt]hank(s| you)", question):
+            print("You're welcome!")
         else:
             print("Sorry, I didn't quite get what you were saying. Maybe Google has an answer...")
             look_it_up(question, good_question = False)
         if step_ptr < len(steps) - 1:
-            move_on = input("Would you like to move on to step " + str(step_ptr + 1) + "? [Y/N]")
+            move_on = input("Would you like to move on to step " + str(step_ptr + 2) + "? [Y/N]")
             if "y" == move_on.lower() or "yes" in move_on.lower():
                 print("Sure thing!")
                 step_ptr += 1
@@ -182,26 +207,107 @@ def main():
                 break
         
 
-#def answer_question(question, ingredients, directions):
+def nearest_field(field, step_ptr, ingredients, steps):
+    #look before
+    before_ptr = step_ptr - 1
+    before_step = -1000
+    before_answer = ""
+    while before_ptr >= 0:
+        if field == "duration":
+            if steps.loc[before_ptr].action_duration != "":
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].action_duration
+                break
+        elif field == "action":
+            if steps.loc[before_ptr].action != "":
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].action
+                break
+        elif field == "temperature":
+            if steps.loc[before_ptr].action_temperature != "":
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].action_temperature
+                break
+        elif field == "equipment":
+            if steps.loc[before_ptr].equipment != "":
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].equipment
+                break
+        elif field == "ingredient":
+            if steps.loc[before_ptr].ingredient_name != []:
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].ingredient_name
+                break
+        elif field == "amount":
+            if steps.loc[before_ptr].ingredient_amount != []:
+                before_step = before_ptr
+                before_answer = steps.loc[before_ptr].ingredient_amount #CHANGE ME
+                break
+        else:
+            return (-1, "")
+        before_ptr -= 1
+    after_ptr = step_ptr + 1
+    after_step = 1000
+    after_answer = ""
+    while after_ptr < len(steps):
+        if field == "duration":
+            if steps.loc[after_ptr].action_duration != "":
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].action_duration
+                break
+        elif field == "action":
+            if steps.loc[after_ptr].action != "":
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].action
+                break
+        elif field == "temperature":
+            if steps.loc[after_ptr].action_temperature != "":
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].action_temperature
+                break
+        elif field == "equipment":
+            if steps.loc[after_ptr].equipment != "":
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].equipment
+                break
+        elif field == "ingredient":
+            if steps.loc[after_ptr].ingredient_name != []:
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].ingredient_name
+                break
+        elif field == "amount":
+            if steps.loc[after_ptr].ingredient_amount != []:
+                after_step = after_ptr
+                after_answer = steps.loc[after_ptr].ingredient_amount #CHANGE ME
+                break
+        else:
+            return (-1, "")
+        after_ptr += 1
+    if after_step - step_ptr < step_ptr - before_step:
+        return (after_step, after_answer)
+    else:
+        return (before_step, before_answer)
+    
 
 
 def look_it_up(query, good_question = True):
     if good_question:
         print("I don't know off the top of my head. Let me google that!")
     try:
-        search_results = search.search(query, num_results = 100)
+        search_results = search.search(query, num_results = 10)
+        for i in search_results:  
+            print("I found a source that might help: " + i)
+            go_again = input("Do you need to see another site? [Y/N]")
+            if go_again.lower() == "n" or go_again.lower() == "no":
+                print("Great! Glad I could help.")
+                break
+            elif go_again.lower() != "y" and go_again.lower() != "yes":
+                print("I didn't quite get that, but I'm assuming you're good for now.")
+                break
+        print("I'm fresh out of sources! Better luck next time.")
     except:
         print("Google's not having a good time with that question for some reason. Guess it'll have to go unanswered. Sorry!")
         return
-    for i in search_results:  
-        print("I found a source that might help: " + i)
-        go_again = input("Do you need to see another site? [Y/N]")
-        if go_again.lower() == "n" or go_again.lower() == "no":
-            print("Great! Glad I could help.")
-            break
-        elif go_again.lower() != "y" and go_again.lower() != "yes":
-            print("I didn't quite get that, but I'm assuming you're good for now.")
-            break
             
 if __name__ == "__main__":
     main()
