@@ -135,7 +135,7 @@ def direction_search_table(directions, ingredients, units_list, unit_conversion,
             for i in ingredients:
                 ingredient_words = i.split(" ")
                 for ingredient_word in ingredient_words:
-                    if (token.text == ingredient_word or plural_version == ingredient_word) and token.pos_ != 'NUM' and token.text not in ['and', 'a', 'or', 'of', 'into', 'cut', 'chopped']:
+                    if (token.text == ingredient_word or plural_version == ingredient_word) and token.pos_ != 'NUM' and token.text not in ['and', 'a', 'or', 'of', 'into', 'cut', 'chopped', 'to']:
                         ingredient_name.append(token.text)
             for e in equipment_list:
                 if token.text.lower() == e:
