@@ -60,10 +60,28 @@ def main():
     
     #get list of ingredients
     ingredients = ingredients_raw #will change this for project 3
+
+    # Stripping away stopwords, predetermined units and/or equipment from list of ingredients for direction parsing purposes
+    inflection_engine = inflect.engine()
+    new_ingredients = ingredients.copy()
+    for ingredient_idx, i in enumerate(ingredients):
+        new_ingredients[ingredient_idx] = i.replace(',', "")
+        new_sentence = new_ingredients[ingredient_idx]
+        for word in new_ingredients[ingredient_idx].split(" "):
+            for unit in units_list:
+                if word == unit or word == inflection_engine.plural(unit):
+                    new_sentence = new_sentence.replace(word, "")
+            for equipment in equipment_list:
+                if word == equipment:
+                    new_sentence = new_sentence.replace(word, "")
+        new_ingredients[ingredient_idx] = new_sentence
     
     #get list of steps
-    steps = direction_parsing.direction_search_table(directions_raw, ingredients, units_list, unit_conversion, equipment_list, units_of_time_list, temp_levels_list)
-    
+    steps = direction_parsing.direction_search_table(directions_raw, new_ingredients, units_list, unit_conversion, equipment_list, units_of_time_list, temp_levels_list)
+    steps = direction_parsing.ingredient_name_join(steps, ingredients)
+    steps = direction_parsing.ingredient_infer(steps, ingredients, units_list)
+    steps = direction_parsing.equipment_infer(steps)
+
     print("I just looked it over: the recipe you picked calls for " + str(len(ingredients)) + " ingredients and has " 
          + str(len(steps)) + " steps.")
     
@@ -223,12 +241,13 @@ def main():
                         if len(local_amount) == 0:
                             print("The recipe calls for " + relevant_ingredient)
                         else:
-                            local_ingredients = steps.loc[step_ptr].ingredient
+                            local_ingredients = steps.loc[step_ptr].ingredient_name
                             ingredient_index = -1
                             for i in range(len(local_ingredients)):
                                 if re.search(local_ingredients[i], relevant_ingredient):
                                     #the amount is specified in the step
                                     print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                                ingredient_index = i
                             if ingredient_index == -1:
                                 print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
             
@@ -305,18 +324,19 @@ def main():
                     if len(local_amount) == 0:
                         print("The recipe calls for " + relevant_ingredient)
                     else:
-                        local_ingredients = steps.loc[step_ptr].ingredient
+                        local_ingredients = steps.loc[step_ptr].ingredient_name
                         ingredient_index = -1
                         for i in range(len(local_ingredients)):
                             if re.search(local_ingredients[i], relevant_ingredient):
                                 #the amount is specified in the step
                                 print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                            ingredient_index = i
                         if ingredient_index == -1:
                             print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
             #WHAT IS QUESTIONS HAVE LOWEST PRIORITY
             elif re.search("[Ww]hat (is|are)", question):
                 if re.search("this|that|these|those", question):
-                    potential_topics = steps.loc[step_ptr].ingredient.append(steps.loc[step_ptr].equipment)
+                    potential_topics = steps.loc[step_ptr].ingredient_name.append(steps.loc[step_ptr].equipment)
                     if len(potential_topics) == 1:
                         print("I don't know much about " + potential_topics[0] + ". I'll ask Google!")
                         look_it_up("what is " + potential_topics[0], good_question = False)
