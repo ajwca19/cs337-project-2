@@ -19,6 +19,7 @@ import googlesearch as search
 import web_scraping
 import direction_parsing
 import ingredient_parsing
+import ingredient_substitution
 
 def main():
     # Creating a list of units commonly used in cooking
@@ -76,10 +77,13 @@ def main():
             after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
             while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
                 ingredient_question = input("Ask away!")
-                if re.search("substitut[e|ion]|replace", ingredient_question):
-                    #REPLACE THIS WHEN IT'S DONE
-                    print("I'm still learning how to substitute ingredients in a recipe. For now, I'll let Google answer.")
-                    look_it_up(ingredient_question, good_question = False)
+                if re.search("substitut[e|ion]|replace|instead", ingredient_question):
+                    potential_subs = identify_substitution(ingredient_question, units_list, unit_conversion)
+                    if len(potential_subs) == 0:
+                        print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
+                        look_it_up(ingredient_question, good_question = False)
+                    else:
+                        print("Based on what I know, you should try " + pretty_list_print(potential_subs))
                 elif re.search("[Ww]hat (is|are)", ingredient_question):
                     look_it_up(ingredient_question)
                 else:
@@ -166,9 +170,13 @@ def main():
             print("You're on step " + str(step_ptr + 1) + " out of " + str(len(steps)))
         
         #question is asking about a replacement or substitution
-        elif re.search("substitut(e|ion)|replace", question):
-            print("I'm still learning how to substitute ingredients in a recipe. For now, I'll let Google answer.")
-            look_it_up(ingredient_question, good_question = False)
+        elif re.search("substitut(e|ion)|replace|instead", question):
+            potential_subs = identify_substitution(question, units_list, unit_conversion)
+            if len(potential_subs) == 0:
+                print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
+                look_it_up(question, good_question = False)
+            else:
+                print("Based on what I know, you should try " + pretty_list_print(potential_subs))
                 
         #other questions that contain the word how
         elif re.search("[Hh]ow", question):
@@ -180,7 +188,7 @@ def main():
                 else:
                     print("I can't find anything in this step about time. Let me look around.")
                     step, duration = nearest_field("duration", step_ptr, ingredients, steps)
-                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
+                    print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(duration))
             elif re.search("[Hh]ow (hot|cold|warm|high|low)", question):
                 if steps.loc[step_ptr].action_temperature != "":
                     #there's some temperature mentioned
@@ -188,7 +196,7 @@ def main():
                 else:
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
-                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
+                    print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(temperature))
             elif re.search("[Hh]ow (much|many)", question):
                 about_time = False
                 for unit in units_of_time_list:
@@ -202,11 +210,11 @@ def main():
                     else:
                         print("I can't find anything in this step about time. Let me look around.")
                         step, duration = nearest_field("duration", step_ptr, ingredients, steps)
-                        print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
+                        print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(duration))
                 else:
                     #question is about quantity
                     relevant_ingredient = identify_relevant_ingredient(question, ingredients, units_list, unit_conversion)
-                    if relevant_ingredient == "":
+                    if relevant_ingredient == None or relevant_ingredient == "":
                         print("I can't tell which ingredient you're asking about. Can you rephrase the question?")
                         continue
                     else:
@@ -258,7 +266,7 @@ def main():
                     if "1" in where_to_look:
                         print("Okay. I'll look now.")
                         step, ingredient_name = nearest_field("ingredient", step_ptr, ingredients, steps)
-                        print("I found this information in step " + str(step) + ". I hope it helps: " + pretty_list_print(ingredient_name))
+                        print("I found this information in step " + str(step + 1) + ". I hope it helps: " + pretty_list_print(ingredient_name))
                     elif "2" in where_to_look:
                         print("Here's the list of ingredients for the whole recipe:")
                         for i in ingredients_raw:
@@ -274,7 +282,7 @@ def main():
                 else:
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
-                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
+                    print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(temperature))
             elif re.search("time", question):
                 #talking about time
                 if steps.loc[step_ptr].action_duration != "":
@@ -283,7 +291,7 @@ def main():
                 else:
                     print("I can't find anything in this step about time. Let me look around.")
                     step, duration = nearest_field("duration", step_ptr, ingredients, steps)
-                    print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
+                    print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(duration))
             elif re.search("amount|quantity", question):
                 #talking about quantity
                 #question is about quantity
@@ -325,7 +333,15 @@ def main():
             else:
                 print("I don't understand your question. Can you ask it another way?")
                 continue
-                    
+        elif re.search("[Ww]hen", question):
+            #assume that we're talking about doneness
+            if steps.loc[step_ptr].action_duration != "":
+                    #there's some duration mentioned
+                print(steps.loc[step_ptr].action_duration)
+            else:
+                print("I can't find anything in this step about time. Let me look around.")
+                step, duration = nearest_field("duration", step_ptr, ingredients, steps)
+                print("I found this information in step " + str(step + 1) + ". I hope it helps: " + str(duration))
         #metadata/control of the application            
         elif question.lower() == "quit":
             break
@@ -464,10 +480,10 @@ def look_it_up(query, good_question = True):
             go_again = input("Do you need to see another site? [Y/N]")
             if go_again.lower() == "n" or go_again.lower() == "no":
                 print("Great! Glad I could help.")
-                break
+                return
             elif go_again.lower() != "y" and go_again.lower() != "yes":
                 print("I didn't quite get that, but I'm assuming you're good for now.")
-                break
+                return
         print("I'm fresh out of sources! Better luck next time.")
     except:
         print("Google's not having a good time with that question for some reason. Guess it'll have to go unanswered. Sorry!")
@@ -491,6 +507,24 @@ def identify_relevant_ingredient(question, ingredients_list, units_list, units_c
                 if token.text in ingredient:
                     return ingredient
             return ""
+        
+def identify_substitution(question, units_list, unit_conversion):
+    parsed_question = nlp(question)
+    dictionary = ingredient_substitution.substitution_dictionary
+    for token in parsed_question:
+        if token.lemma_ in ["what", "can", "how", "should", "do", "I", "substitute", "replace", "instead", "of", "with", "a", "an", "the"]:
+            continue
+        elif token.lemma_ in units_list or token.text in unit_conversion.keys():
+            continue
+        elif token.pos_ != "NOUN":
+            continue
+        else:
+            for ingredient in dictionary.keys():
+                if token.lemma_ in ingredient:
+                    #print("I'm substituting " + ingredient)
+                    return dictionary[ingredient]
+        return []
+    
     
 if __name__ == "__main__":
     main()
