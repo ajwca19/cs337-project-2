@@ -82,7 +82,9 @@ def main():
                     look_it_up(ingredient_question, good_question = False)
                 elif re.search("[Ww]hat (is|are)", ingredient_question):
                     look_it_up(ingredient_question)
-                elif
+                else:
+                    print("I'm not sure how to answer that. I'll ask Google for you!")
+                    look_it_up(ingredient_question, good_question = False)
                 after_ingredients = input("Do you [1] have more questions or [2] want to get started cooking?")
             print("Glad I could help! Let's get cooking!")
             break
@@ -166,7 +168,7 @@ def main():
         #question is asking about a replacement or substitution
         elif re.search("substitut(e|ion)|replace", question):
             print("I'm still learning how to substitute ingredients in a recipe. For now, I'll let Google answer.")
-                    look_it_up(ingredient_question, good_question = False)
+            look_it_up(ingredient_question, good_question = False)
                 
         #other questions that contain the word how
         elif re.search("[Hh]ow", question):
@@ -174,7 +176,7 @@ def main():
                 #talking about time
                 if steps.loc[step_ptr].action_duration != "":
                     #there's some duration mentioned
-                    print(step.loc[step_ptr].action_duration)
+                    print(steps.loc[step_ptr].action_duration)
                 else:
                     print("I can't find anything in this step about time. Let me look around.")
                     step, duration = nearest_field("duration", step_ptr, ingredients, steps)
@@ -182,13 +184,13 @@ def main():
             elif re.search("[Hh]ow (hot|cold|warm|high|low)", question):
                 if steps.loc[step_ptr].action_temperature != "":
                     #there's some temperature mentioned
-                    print(step.loc[step_ptr].action_temperature)
+                    print(steps.loc[step_ptr].action_temperature)
                 else:
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
                     print("I found this information in step " + str(step) + ". I hope it helps: " + str(temperature))
             elif re.search("[Hh]ow (much|many)", question):
-                about_time = False:
+                about_time = False
                 for unit in units_of_time_list:
                     if re.search(unit, question):
                         about_time = True
@@ -203,8 +205,8 @@ def main():
                         print("I found this information in step " + str(step) + ". I hope it helps: " + str(duration))
                 else:
                     #question is about quantity
-                    relevant_ingredient = identify_relevant_ingredient(question)
-                    if relevant_ingredient = "":
+                    relevant_ingredient = identify_relevant_ingredient(question, ingredients, units_list, unit_conversion)
+                    if relevant_ingredient == "":
                         print("I can't tell which ingredient you're asking about. Can you rephrase the question?")
                         continue
                     else:
@@ -219,7 +221,7 @@ def main():
                                 if re.search(local_ingredients[i], relevant_ingredient):
                                     #the amount is specified in the step
                                     print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
-                            if ingredient_index = -1:
+                            if ingredient_index == -1:
                                 print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
             
             #HOW TO/HOW DO I SHOULD BE THE LOWEST PRIORITY "HOW" QUESTION ANSWERED
@@ -268,7 +270,7 @@ def main():
             elif re.search("temperature|heat", question):
                 if steps.loc[step_ptr].action_temperature != "":
                     #there's some temperature mentioned
-                    print(step.loc[step_ptr].action_temperature)
+                    print(steps.loc[step_ptr].action_temperature)
                 else:
                     print("I can't find anything in this step about temperature. Let me look around.")
                     step, temperature = nearest_field("temperature", step_ptr, ingredients, steps)
@@ -277,7 +279,7 @@ def main():
                 #talking about time
                 if steps.loc[step_ptr].action_duration != "":
                     #there's some duration mentioned
-                    print(step.loc[step_ptr].action_duration)
+                    print(steps.loc[step_ptr].action_duration)
                 else:
                     print("I can't find anything in this step about time. Let me look around.")
                     step, duration = nearest_field("duration", step_ptr, ingredients, steps)
@@ -285,8 +287,8 @@ def main():
             elif re.search("amount|quantity", question):
                 #talking about quantity
                 #question is about quantity
-                relevant_ingredient = identify_relevant_ingredient(question)
-                if relevant_ingredient = "":
+                relevant_ingredient = identify_relevant_ingredient(question, ingredients, units_list, unit_conversion)
+                if relevant_ingredient == "":
                     print("I can't tell which ingredient you're asking about. Can you rephrase the question?")
                     continue
                 else:
@@ -301,8 +303,25 @@ def main():
                             if re.search(local_ingredients[i], relevant_ingredient):
                                 #the amount is specified in the step
                                 print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
-                        if ingredient_index = -1:
+                        if ingredient_index == -1:
                             print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
+            #WHAT IS QUESTIONS HAVE LOWEST PRIORITY
+            elif re.search("[Ww]hat (is|are)", question):
+                if re.search("this|that|these|those", question):
+                    potential_topics = steps.loc[step_ptr].ingredient.append(steps.loc[step_ptr].equipment)
+                    if len(potential_topics) == 1:
+                        print("I don't know much about " + potential_topics[0] + ". I'll ask Google!")
+                        look_it_up("what is " + potential_topics[0], good_question = False)
+                    else:
+                        print("I can't tell what you're asking about.")
+                        look_it_up("what is " + input("What do you want to learn more about?"), good_question = False)
+                else:
+                    if re.search("is", question):
+                        print("I don't know what that is, but I can ask Google for you!")
+                        look_it_up(question, good_question = False)
+                    else:
+                        print("I don't know what those are, but I can ask Google for you!")
+                        look_it_up(question, good_question = False)
             else:
                 print("I don't understand your question. Can you ask it another way?")
                 continue
