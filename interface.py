@@ -488,7 +488,8 @@ def pretty_list_print(string_list):
     final_string = ""
     for i in range(len(string_list) - 1):
         final_string += string_list[i] + ", "
-    final_string += string_list[-1]
+    if len(string_list) > 0:
+        final_string += string_list[-1]
     return final_string
 
 def look_it_up(query, good_question = True):
