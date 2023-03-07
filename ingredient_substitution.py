@@ -103,3 +103,9 @@ diet_dictionary = {
 	'halal': ['alcohol', 'vanilla extract', 'pork'],
 	'hindu': ['beef']
 }
+
+# Generating a dictionary of foods common to different cuisine types
+cuisine_dictionary = {
+	'italian': {'proteins': ['beef', 'pork', 'chicken', 'fish'], 'vegetables': ['eggplant', 'celery', 'broccoli rabe', 'broccolini', 'arugula', 'artichokes', 'fennel', 'mushrooms', 'tomato', 'onion'], 'spices': ['thyme', 'basil', 'oregano', 'sage', 'rosemary', 'garlic'], 'binders': ['bread crumbs', 'egg']},
+	'south asian': {'proteins': ['chicken', 'turkey', 'lamb', 'lentils', 'chickpeas'], 'vegetables': ['cauliflower', 'potato', 'jackfruit', 'cabbage', 'chili pepper', 'eggplant', 'onion', 'sweet potato', 'turnip'], 'spices': ['turmeric', 'cardamom', 'chili', 'ginger', 'garlic', 'cumin', 'coriander', 'cloves', 'red chili powder', 'mustard seed', 'fenugreek', 'saffron'], 'binders': ['rice', 'psyllium husks']}
+}
