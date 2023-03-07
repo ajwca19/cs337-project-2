@@ -81,6 +81,7 @@ def main():
     steps = direction_parsing.ingredient_name_join(steps, ingredients)
     steps = direction_parsing.ingredient_infer(steps, ingredients, units_list)
     steps = direction_parsing.equipment_infer(steps)
+    steps = direction_parsing.directions_clean(steps)
 
     print("I just looked it over: the recipe you picked calls for " + str(len(ingredients)) + " ingredients and has " 
          + str(len(steps)) + " steps.")

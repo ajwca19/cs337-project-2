@@ -15,7 +15,7 @@ import inflect
 import web_scraping
 
 # Obtaining list of ingredients and directions from specified recipe web link
-recipe_link = "https://www.foodnetwork.com/recipes/ina-garten/meat-loaf-recipe-1921718"
+recipe_link = "https://www.allrecipes.com/recipe/21176/baked-dijon-salmon/"
 ingredients, directions = web_scraping.recipe_extract(recipe_link)
 
 # Creating a list of units commonly used in cooking
@@ -236,7 +236,49 @@ def equipment_infer(direction_df):
 # If there is an action name but no equipment, then inferring the equipment from the action
 direction_df = equipment_infer(direction_df)
 
+# Defining a function to clean all elements of the directions search table
+def directions_clean(direction_df):
+    for ind in direction_df.index:
+        direction_df['raw_text'][ind] = re.sub('\(|\)', "", direction_df['raw_text'][ind])
+        direction_df['raw_text'][ind] = direction_df['raw_text'][ind].strip()
+        direction_df['action'][ind] = re.sub('\(|\)', "", direction_df['action'][ind])
+        direction_df['action'][ind] = direction_df['action'][ind].strip()
+        direction_df['action_duration'][ind] = re.sub('\(|\)', "", direction_df['action_duration'][ind])
+        direction_df['action_duration'][ind] = direction_df['action_duration'][ind].strip()
+        direction_df['action_temperature'][ind] = re.sub('\(|\)', "", direction_df['action_temperature'][ind])
+        direction_df['action_temperature'][ind] = direction_df['action_temperature'][ind].strip()
+        direction_df['action_details'][ind] = re.sub('\(|\)', "", direction_df['action_details'][ind])
+        direction_df['action_details'][ind] = direction_df['action_details'][ind].strip()
+        new_list = []
+        for x in direction_df['ingredient_amount'][ind]:
+            x = re.sub('\(|\)', "", x)
+            x = x.strip()
+            new_list.append(x)
+        direction_df['ingredient_amount'][ind] = new_list.copy()
+        new_list = []
+        for x in direction_df['ingredient_unit'][ind]:
+            x = re.sub('\(|\)', "", x)
+            x = x.strip()
+            new_list.append(x)
+        direction_df['ingredient_unit'][ind] = new_list.copy()
+        new_list = []
+        for x in direction_df['ingredient_name'][ind]:
+            x = re.sub('\(|\)', "", x)
+            x = x.strip()
+            new_list.append(x)
+        direction_df['ingredient_name'][ind] = new_list.copy()
+        new_list = []
+        for x in direction_df['equipment'][ind]:
+            x = re.sub('\(|\)', "", x)
+            x = x.strip()
+            new_list.append(x)
+        direction_df['equipment'][ind] = new_list.copy()
+    return direction_df
+
+# Cleaning all elements of the directions search table
+direction_df = directions_clean(direction_df)
+
 
 # Displaying the cleaned search table, not necessary for final program
-#for i in range(len(direction_df)):
-#    print(direction_df.loc[i].to_string())
+# for i in range(len(direction_df)):
+#     print(direction_df.loc[i].to_string())
