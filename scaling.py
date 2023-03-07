@@ -1,5 +1,7 @@
-# Specifying the scaling factor, which will be user-provided
-scaling_factor = float(input('Scaling factor: '))
+# Importing necessary modules
+import re
+import pandas as pd
+import inflect
 
 # Defining function to convert recipe unit fractions to decimals
 def fraction_to_decimal(recipe_unit):
@@ -88,10 +90,6 @@ def ingredients_scale(ingredients, scaling_factor, units_list):
 	# Returning the scaled ingredients list, as well as the dictionary of wording substitutions
 	return (ingredients_temp, wording_sub_dict)
 
-# Scaling the ingredients list, and getting dictionary of wording substitutions
-ingredients, wording_sub_dict = ingredients_scale(ingredients, scaling_factor, units_list)
-
-
 # Defining function to scale the directions steps
 def directions_scale(direction_df, scaling_factor, wording_sub_dict):
 	for ind in direction_df.index:
@@ -129,6 +127,3 @@ def directions_scale(direction_df, scaling_factor, wording_sub_dict):
 		direction_df['ingredient_name'][ind] = new_name_list.copy()
 	# Returning the scaled directions steps
 	return direction_df
-
-# Scaling the directions steps
-direction_df = directions_scale(direction_df, scaling_factor, wording_sub_dict)

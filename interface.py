@@ -20,6 +20,7 @@ import web_scraping
 import direction_parsing
 import ingredient_parsing
 import ingredient_substitution
+import scaling
 
 def main():
     # Creating a list of units commonly used in cooking
@@ -51,15 +52,12 @@ def main():
             print("This doesn't look like a URL to me:")
             recipe_url = input("Paste a recipe URL here to follow!")
         #scrape the recipe
-        ingredients_raw, directions_raw = web_scraping.recipe_extract(recipe_url)
-        if len(ingredients_raw) != 0 and len(directions_raw) != 0:
+        ingredients, directions_raw = web_scraping.recipe_extract(recipe_url)
+        if len(ingredients) != 0 and len(directions_raw) != 0:
             print("Sounds delicious! I'm ready to go when you are!")
             break
         else:
             print("Sorry, I've never seen a recipe like this before. Can you try something different?")
-    
-    #get list of ingredients
-    ingredients = ingredients_raw #will change this for project 3
 
     # Stripping away stopwords, predetermined units and/or equipment from list of ingredients for direction parsing purposes
     inflection_engine = inflect.engine()
@@ -87,11 +85,11 @@ def main():
          + str(len(steps)) + " steps.")
     
     #ask about initial viewing
-    get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
+    get_started = input("Do you want to [1] view the list of ingredients, [2] start with the cooking, or [3] re-scale the recipe?")
     while True:
         if get_started == "1" or "ingredient" in get_started.lower():
             print("Got it. For this recipe, you will need...\n")
-            for i in ingredients_raw:
+            for i in ingredients:
                 print(i)
             after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
             while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
@@ -114,9 +112,29 @@ def main():
         elif get_started == "2" or "start" in get_started.lower() or "cook" in get_started.lower():
             print("Let's get cooking!")
             break
+        elif get_started == "3" or "scale" in get_started.lower():
+            print("Sounds great, below please enter the factor by which you would like to scale the recipe, in decimal form.")
+            print("For example, to double the recipe you would enter the number 2, and to halve the recipe you would enter 0.5.")
+            while True:
+                try:
+                    scaling_factor = float(input('Scaling factor: '))
+                except ValueError:
+                    print("That doesn't look like a number in decimal form, please re-enter.")
+                    continue
+                else:
+                    break
+            # Scaling the ingredients list, and getting dictionary of wording substitutions
+            ingredients, wording_sub_dict = scaling.ingredients_scale(ingredients, scaling_factor, units_list)
+            # Scaling the directions steps
+            steps = scaling.directions_scale(steps, scaling_factor, wording_sub_dict)
+            # Printing the newly scaled ingredients list
+            print("Got it. For this recipe, you will need...\n")
+            for i in ingredients:
+                print(i)
+            break
         else:
             print("I'm sorry, I didn't quite get that. Let's try again!")
-            get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
+            get_started = input("Do you want to [1] view the list of ingredients, [2] start with the cooking, or [3] re-scale the recipe?")
     
     assistant_guide = input("Before we get started, do you want to know what I can do? [Y/N]")
     if "y" == assistant_guide.lower() or "yes" in assistant_guide.lower():
@@ -160,7 +178,7 @@ def main():
             #question is repeating the most recent step
             if re.search("[Ii]ngredient", question):
                 print("Here's the list of ingredients for the recipe once more:")
-                for i in ingredients_raw:
+                for i in ingredients:
                     print(i)
             else:
                 print("One more time? Okay! You need to do the following:")
@@ -247,7 +265,13 @@ def main():
                             for i in range(len(local_ingredients)):
                                 if re.search(local_ingredients[i], relevant_ingredient):
                                     #the amount is specified in the step
-                                    print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                                    message = "This step calls for "
+                                    if len(local_amount) > 0:
+                                        message += str(local_amount[i]) + " "
+                                    if len(local_units) > 0:
+                                        message += str(local_units[i]) + " "
+                                    message += str(local_ingredients[i])
+                                    print(message)
                                 ingredient_index = i
                             if ingredient_index == -1:
                                 print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
@@ -289,11 +313,11 @@ def main():
                         print("I found this information in step " + str(step + 1) + ". I hope it helps: " + pretty_list_print(ingredient_name))
                     elif "2" in where_to_look:
                         print("Here's the list of ingredients for the whole recipe:")
-                        for i in ingredients_raw:
+                        for i in ingredients:
                             print(i)
                     else:
                         print("I didn't quite get that. Here's the ingredients for the entire recipe:")
-                        for i in ingredients_raw:
+                        for i in ingredients:
                             print(i)
             elif re.search("temperature|heat", question):
                 if steps.loc[step_ptr].action_temperature != "":
@@ -330,7 +354,13 @@ def main():
                         for i in range(len(local_ingredients)):
                             if re.search(local_ingredients[i], relevant_ingredient):
                                 #the amount is specified in the step
-                                print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                                message = "This step calls for "
+                                if len(local_amount) > 0:
+                                    message += str(local_amount[i]) + " "
+                                if len(local_units) > 0:
+                                    message += str(local_units[i]) + " "
+                                message += str(local_ingredients[i])
+                                print(message)
                             ingredient_index = i
                         if ingredient_index == -1:
                             print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
