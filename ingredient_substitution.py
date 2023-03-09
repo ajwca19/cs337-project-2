@@ -106,6 +106,8 @@ diet_dictionary = {
 	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage'],
 	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
+	'lactose-free': ['butter', 'margarine', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream'],
+	'gluten-free': ['bread', 'tortilla', 'pasta', 'cereal', 'crackers', 'pretzels', 'bagel', 'cookies', 'cake', 'pie', 'doughnuts', 'couscous', 'soy sauce', 'salad dressing', 'gravy', 'ketchup', 'beer'],
 	'healthy': ['butter', 'margarine', 'lard', 'palm oil', 'coconut oil', 'mayonnaise', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'beef', 'pork', 'sausage', 'bacon', 'prosciutto', 'chips', 'crackers', 'sugar', 'syrup', 'cookies', 'egg'],
 	'unhealthy': ['avocado', 'nuts', 'sesame seeds', 'vegetable oil', 'olive oil', 'sesame oil', 'fish', 'salmon', 'chicken', 'turkey', 'tofu', 'jackfruit', 'brown rice', 'beans', 'peas'],
 	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin'],
@@ -113,8 +115,9 @@ diet_dictionary = {
 	'hindu': ['beef']
 }
 
-# Generating a dictionary of foods common to different cuisine types
+# Generating a dictionary of foods common to different styles of cuisine
 cuisine_dictionary = {
 	'italian': {'proteins': ['beef', 'pork', 'chicken', 'fish'], 'vegetables': ['eggplant', 'celery', 'broccoli rabe', 'broccolini', 'arugula', 'artichokes', 'fennel', 'mushrooms', 'tomato', 'onion'], 'spices': ['thyme', 'basil', 'oregano', 'sage', 'rosemary', 'garlic'], 'binders': ['bread crumbs', 'egg']},
-	'south asian': {'proteins': ['chicken', 'turkey', 'lamb', 'lentils', 'chickpeas'], 'vegetables': ['cauliflower', 'potato', 'jackfruit', 'cabbage', 'chili pepper', 'eggplant', 'onion', 'sweet potato', 'turnip'], 'spices': ['turmeric', 'cardamom', 'chili', 'ginger', 'garlic', 'cumin', 'coriander', 'cloves', 'red chili powder', 'mustard seed', 'fenugreek', 'saffron'], 'binders': ['rice', 'psyllium husks']}
+	'south asian': {'proteins': ['chicken', 'turkey', 'lamb', 'lentils', 'chickpeas'], 'vegetables': ['cauliflower', 'potato', 'jackfruit', 'cabbage', 'chili pepper', 'eggplant', 'onion', 'sweet potato', 'turnip'], 'spices': ['turmeric', 'cardamom', 'chili', 'ginger', 'garlic', 'cumin', 'coriander', 'cloves', 'red chili powder', 'mustard seed', 'fenugreek', 'saffron'], 'binders': ['rice', 'psyllium husks']},
+	'mexican': {'proteins': ['beef', 'pork', 'chicken', 'fish', 'shrimp'], 'vegetables': ['corn', 'squash', 'potato', 'beans', 'tomato', 'bell pepper', 'onion', 'avocado', 'jalapeno', 'zucchini', 'chili pepper'], 'spices': ['cilantro', 'garlic', 'oregano', 'cayenne', 'cinnamon', 'coriander', 'cumin', 'allspice', 'red chili powder'], 'binders': ['tortilla chips']}
 }
