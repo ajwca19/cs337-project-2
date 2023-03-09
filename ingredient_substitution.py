@@ -1,7 +1,7 @@
 # Generating a dictionary of common ingredient substitutions
 substitution_dictionary = {
 	'bread crumbs': ['cracker crumbs', 'matzo meal', 'ground oats', 'rice'],
-	'butter': ['margarine'],
+	'butter': ['margarine', 'coconut oil', 'olive oil'],
 	'buttermilk': ['yogurt'],
 	'cornstarch': ['flour'],
 	'corn syrup': ['honey'],
@@ -29,7 +29,7 @@ substitution_dictionary = {
 	'lime zest': ['lemon zest'],
 	'macadamia nuts': ['hazelnuts', 'almonds'],
 	'mace': ['nutmeg'],
-	'margarine': ['butter'],
+	'margarine': ['butter', 'coconut oil', 'olive oil'],
 	'mayonnaise': ['sour cream', 'plain yogurt'],
 	'whole milk': ['soy milk', 'water'],
 	'onion': ['green onion', 'shallots', 'leek', 'onion powder'],
@@ -47,6 +47,7 @@ substitution_dictionary = {
 	'sour cream': ['plain yogurt'],
 	'soy sauce': ['Worcestershire sauce'],
 	'vegetable oil': ['lard', 'olive oil'],
+	'sesame oil': ['coconut oil'],
 	'vinegar': ['lemon juice', 'lime juice', 'white wine'],
 	'sugar': ['honey', 'corn syrup'],
 	'wine': ['chicken broth', 'beef broth', 'water', 'fruit juice'],
@@ -54,9 +55,11 @@ substitution_dictionary = {
 	'beef': ['turkey', 'beans', 'chickpeas', 'lentils', 'jackfruit', 'mushrooms'],
 	'chicken': ['tofu', 'chickpeas', 'jackfruit', 'tempeh', 'soy', 'cauliflower'],
 	'pork': ['turkey', 'beef', 'chicken', 'tofu'],
-	'fish': ['tofu', 'jackfruit'],
+	'fish': ['tofu', 'jackfruit', 'beef'],
+	'salmon': ['tofu', 'jackfruit', 'beef'],
 	'tofu': ['beef', 'chicken', 'pork', 'fish'],
 	'sausage': ['beef', 'turkey', 'pork', 'tofu'],
+	'bacon': ['prosciutto', 'turkey bacon', 'tempeh', 'chickpeas', 'tofu'],
 	'parsley': ['mint', 'cilantro', 'basil', 'sorrel'],
 	'mint': ['parsley', 'cilantro', 'basil', 'sorrel'],
 	'cilantro': ['mint', 'parsley', 'basil', 'sorrel'],
@@ -92,15 +95,19 @@ substitution_dictionary = {
 	'eggplant': ['tomato', 'bell pepper'],
 	'lettuce': ['radicchio', 'arugula'],
 	'radicchio': ['lettuce', 'arugula'],
-	'arugula': ['lettuce', 'radicchio']
+	'arugula': ['lettuce', 'radicchio'],
+	'sesame seeds': [''],
 }
 
 # Generating a dictionary of foods you cannot eat on common diets
 diet_dictionary = {
 	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'gelatin', 'sausage'],
+	'non-vegetarian': ['tofu', 'jackfruit', 'tempeh'],
 	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage'],
 	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
+	'healthy': ['butter', 'margarine', 'lard', 'palm oil', 'coconut oil', 'mayonnaise', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'beef', 'pork', 'sausage', 'bacon', 'prosciutto', 'chips', 'crackers', 'sugar', 'syrup', 'cookies', 'egg'],
+	'unhealthy': ['avocado', 'nuts', 'sesame seeds', 'vegetable oil', 'olive oil', 'sesame oil', 'fish', 'salmon', 'chicken', 'turkey', 'tofu', 'jackfruit', 'brown rice', 'beans', 'peas'],
 	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin'],
 	'halal': ['alcohol', 'vanilla extract', 'pork', 'gelatin'],
 	'hindu': ['beef']

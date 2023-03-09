@@ -131,7 +131,10 @@ def direction_search_table(directions, ingredients, units_list, unit_conversion,
             elif token_is_ingredient_amount_and_unit:
                 ingredient_amount.append(direction_doc[token_index-1].text)
                 ingredient_unit.append(token.text)
-            plural_version = inflection_engine.plural(token.text)
+            if token.text != "'s":
+                plural_version = inflection_engine.plural(token.text)
+            elif token.text == "'s":
+                plural_version = "'s"
             for i in ingredients:
                 ingredient_words = i.split(" ")
                 for ingredient_word in ingredient_words:
