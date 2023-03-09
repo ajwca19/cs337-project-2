@@ -55,6 +55,8 @@ substitution_dictionary = {
 	'chicken': ['tofu', 'chickpeas', 'jackfruit', 'tempeh', 'soy', 'cauliflower'],
 	'pork': ['turkey', 'beef', 'chicken', 'tofu'],
 	'fish': ['tofu', 'jackfruit'],
+	'tofu': ['beef', 'chicken', 'pork', 'fish'],
+	'sausage': ['beef', 'turkey', 'pork', 'tofu'],
 	'parsley': ['mint', 'cilantro', 'basil', 'sorrel'],
 	'mint': ['parsley', 'cilantro', 'basil', 'sorrel'],
 	'cilantro': ['mint', 'parsley', 'basil', 'sorrel'],
@@ -95,12 +97,12 @@ substitution_dictionary = {
 
 # Generating a dictionary of foods you cannot eat on common diets
 diet_dictionary = {
-	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish'],
-	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey'],
+	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'gelatin', 'sausage'],
+	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage'],
 	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
-	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels'],
-	'halal': ['alcohol', 'vanilla extract', 'pork'],
+	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin'],
+	'halal': ['alcohol', 'vanilla extract', 'pork', 'gelatin'],
 	'hindu': ['beef']
 }
 
