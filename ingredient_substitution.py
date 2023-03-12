@@ -96,14 +96,14 @@ substitution_dictionary = {
 	'lettuce': ['radicchio', 'arugula'],
 	'radicchio': ['lettuce', 'arugula'],
 	'arugula': ['lettuce', 'radicchio'],
-	'sesame seeds': [''],
+	'sesame seeds': ['poppy seeds', 'sunflower seeds', 'nuts'],
 }
 
 # Generating a dictionary of foods you cannot eat on common diets
 diet_dictionary = {
-	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'gelatin', 'sausage'],
+	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'gelatin', 'sausage', 'lamb', 'salmon'],
 	'non-vegetarian': ['tofu', 'jackfruit', 'tempeh'],
-	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage'],
+	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage', 'lamb', 'salmon'],
 	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
 	'lactose-free': ['butter', 'margarine', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream'],
@@ -121,8 +121,8 @@ cuisine_dictionary = {
 	'south asian': {'proteins': ['chicken', 'turkey', 'lamb', 'lentils', 'chickpeas'], 'vegetables': ['cauliflower', 'potato', 'jackfruit', 'cabbage', 'chili pepper', 'eggplant', 'onion', 'sweet potato', 'turnip'], 'spices': ['turmeric', 'cardamom', 'chili', 'ginger', 'garlic', 'cumin', 'coriander', 'cloves', 'red chili powder', 'mustard seed', 'fenugreek', 'saffron'], 'binders': ['rice', 'psyllium husks']},
 	'mexican': {'proteins': ['beef', 'pork', 'chicken', 'fish', 'shrimp'], 'vegetables': ['corn', 'squash', 'potato', 'beans', 'tomato', 'bell pepper', 'onion', 'avocado', 'jalapeno', 'zucchini', 'chili pepper'], 'spices': ['cilantro', 'garlic', 'oregano', 'cayenne', 'cinnamon', 'coriander', 'cumin', 'allspice', 'red chili powder'], 'binders': ['tortilla chips']},
     'chinese': {'proteins': ['tofu'], 'vegetables': ['baby corn', 'bok choy', 'snow peas', 'eggplant', 'broccoli', 'mushrooms', 'bean sprout', 'green beans', 'peas'], 'spices': ['ginger', 'garlic', 'scallion', 'cilantro', 'sesame'], 'binders': ['rice', 'noodles']},
-    'japanese': {'proteins': ['fish', 'beef', 'pork', 'chicken'], 'vegetables': ['cucumber', 'eggplant', 'pumpkin', 'squash', 'onion', 'green onion', 'radish', 'mushrooms'], 'spices': ['soy sauce', 'ginger', 'red pepper', 'wasabi', 'mustard'], 'binders': []},
-    'greek': {'proteins': ['pork', 'chicken', 'beef', 'lamb'], 'vegetables': ['tomato', 'eggplant', 'potato', 'green beans', 'okra', 'bell pepper', 'onion'], 'spices': ['basil', 'thyme', 'fennel', 'parsley', 'cinnamon', 'allspice', 'cloves'], 'binders': []},
-    'german': {'proteins': ['beef', 'venison', 'pork', 'fish'], 'vegetables': ['carrots', 'cauliflower', 'turnips', 'spinach', 'peas', 'beans', 'broccoli', 'cabbage', 'asparagus'], 'spices': ['parsley', 'thyme', 'laurel', 'chives', 'black pepper', 'cinnamon', 'nutmeg', 'cardamom', 'mustard', 'horseradish'], 'binders': []},
-    'korean': {'proteins': [], 'vegetables': [], 'spices': [], 'binders': []}
+    'japanese': {'proteins': ['fish', 'beef', 'pork', 'chicken'], 'vegetables': ['cucumber', 'eggplant', 'pumpkin', 'squash', 'onion', 'green onion', 'radish', 'mushrooms'], 'spices': ['soy sauce', 'ginger', 'red pepper', 'wasabi', 'mustard'], 'binders': ['panko']},
+    'greek': {'proteins': ['pork', 'chicken', 'beef', 'lamb'], 'vegetables': ['tomato', 'eggplant', 'potato', 'green beans', 'okra', 'bell pepper', 'onion'], 'spices': ['basil', 'thyme', 'fennel', 'parsley', 'cinnamon', 'allspice', 'cloves'], 'binders': ['breadcrumbs']},
+    'german': {'proteins': ['beef', 'venison', 'pork', 'fish'], 'vegetables': ['carrots', 'cauliflower', 'turnips', 'spinach', 'peas', 'beans', 'broccoli', 'cabbage', 'asparagus'], 'spices': ['parsley', 'thyme', 'laurel', 'chives', 'black pepper', 'cinnamon', 'nutmeg', 'cardamom', 'mustard', 'horseradish'], 'binders': ['breadcrumbs']},
+    'korean': {'proteins': ['beef', 'shrimp', 'fish', 'pork'], 'vegetables': ['radish', 'cabbage', 'carrot', 'onion', 'kimchi'], 'spices': ['gochugaru', 'gochujang', 'soy sauce', 'ginger', 'garlic'], 'binders': []}
 }

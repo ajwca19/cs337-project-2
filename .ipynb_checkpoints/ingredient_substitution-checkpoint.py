@@ -1,7 +1,7 @@
 # Generating a dictionary of common ingredient substitutions
 substitution_dictionary = {
 	'bread crumbs': ['cracker crumbs', 'matzo meal', 'ground oats', 'rice'],
-	'butter': ['margarine'],
+	'butter': ['margarine', 'coconut oil', 'olive oil'],
 	'buttermilk': ['yogurt'],
 	'cornstarch': ['flour'],
 	'corn syrup': ['honey'],
@@ -29,7 +29,7 @@ substitution_dictionary = {
 	'lime zest': ['lemon zest'],
 	'macadamia nuts': ['hazelnuts', 'almonds'],
 	'mace': ['nutmeg'],
-	'margarine': ['butter'],
+	'margarine': ['butter', 'coconut oil', 'olive oil'],
 	'mayonnaise': ['sour cream', 'plain yogurt'],
 	'whole milk': ['soy milk', 'water'],
 	'onion': ['green onion', 'shallots', 'leek', 'onion powder'],
@@ -47,6 +47,7 @@ substitution_dictionary = {
 	'sour cream': ['plain yogurt'],
 	'soy sauce': ['Worcestershire sauce'],
 	'vegetable oil': ['lard', 'olive oil'],
+	'sesame oil': ['coconut oil'],
 	'vinegar': ['lemon juice', 'lime juice', 'white wine'],
 	'sugar': ['honey', 'corn syrup'],
 	'wine': ['chicken broth', 'beef broth', 'water', 'fruit juice'],
@@ -54,7 +55,11 @@ substitution_dictionary = {
 	'beef': ['turkey', 'beans', 'chickpeas', 'lentils', 'jackfruit', 'mushrooms'],
 	'chicken': ['tofu', 'chickpeas', 'jackfruit', 'tempeh', 'soy', 'cauliflower'],
 	'pork': ['turkey', 'beef', 'chicken', 'tofu'],
-	'fish': ['tofu', 'jackfruit'],
+	'fish': ['tofu', 'jackfruit', 'beef'],
+	'salmon': ['tofu', 'jackfruit', 'beef'],
+	'tofu': ['beef', 'chicken', 'pork', 'fish'],
+	'sausage': ['beef', 'turkey', 'pork', 'tofu'],
+	'bacon': ['prosciutto', 'turkey bacon', 'tempeh', 'chickpeas', 'tofu'],
 	'parsley': ['mint', 'cilantro', 'basil', 'sorrel'],
 	'mint': ['parsley', 'cilantro', 'basil', 'sorrel'],
 	'cilantro': ['mint', 'parsley', 'basil', 'sorrel'],
@@ -90,16 +95,34 @@ substitution_dictionary = {
 	'eggplant': ['tomato', 'bell pepper'],
 	'lettuce': ['radicchio', 'arugula'],
 	'radicchio': ['lettuce', 'arugula'],
-	'arugula': ['lettuce', 'radicchio']
+	'arugula': ['lettuce', 'radicchio'],
+	'sesame seeds': ['poppy seeds', 'sunflower seeds', 'nuts'],
 }
 
 # Generating a dictionary of foods you cannot eat on common diets
 diet_dictionary = {
-	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish'],
-	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey'],
+	'vegetarian': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'gelatin', 'sausage', 'lamb', 'salmon'],
+	'non-vegetarian': ['tofu', 'jackfruit', 'tempeh'],
+	'vegan': ['beef', 'turkey', 'chicken', 'pork', 'fish', 'milk', 'cream', 'cheese', 'egg', 'honey', 'gelatin', 'sausage', 'lamb', 'salmon'],
 	'keto': ['rice', 'corn', 'oatmeal', 'beans', 'lentils', 'yogurt', 'juice', 'honey', 'syrup', 'sugar', 'chips', 'crackers'],
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
-	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels'],
-	'halal': ['alcohol', 'vanilla extract', 'pork'],
+	'lactose-free': ['butter', 'margarine', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream'],
+	'gluten-free': ['bread', 'tortilla', 'pasta', 'cereal', 'crackers', 'pretzels', 'bagel', 'cookies', 'cake', 'pie', 'doughnuts', 'couscous', 'soy sauce', 'salad dressing', 'gravy', 'ketchup', 'beer'],
+	'healthy': ['butter', 'margarine', 'lard', 'palm oil', 'coconut oil', 'mayonnaise', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'beef', 'pork', 'sausage', 'bacon', 'prosciutto', 'chips', 'crackers', 'sugar', 'syrup', 'cookies', 'egg'],
+	'unhealthy': ['avocado', 'nuts', 'sesame seeds', 'vegetable oil', 'olive oil', 'sesame oil', 'fish', 'salmon', 'chicken', 'turkey', 'tofu', 'jackfruit', 'brown rice', 'beans', 'peas'],
+	'kosher': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin'],
+	'halal': ['alcohol', 'vanilla extract', 'pork', 'gelatin'],
 	'hindu': ['beef']
+}
+
+# Generating a dictionary of foods common to different styles of cuisine
+cuisine_dictionary = {
+	'italian': {'proteins': ['beef', 'pork', 'chicken', 'fish'], 'vegetables': ['eggplant', 'celery', 'broccoli rabe', 'broccolini', 'arugula', 'artichokes', 'fennel', 'mushrooms', 'tomato', 'onion'], 'spices': ['thyme', 'basil', 'oregano', 'sage', 'rosemary', 'garlic'], 'binders': ['bread crumbs', 'egg']},
+	'south asian': {'proteins': ['chicken', 'turkey', 'lamb', 'lentils', 'chickpeas'], 'vegetables': ['cauliflower', 'potato', 'jackfruit', 'cabbage', 'chili pepper', 'eggplant', 'onion', 'sweet potato', 'turnip'], 'spices': ['turmeric', 'cardamom', 'chili', 'ginger', 'garlic', 'cumin', 'coriander', 'cloves', 'red chili powder', 'mustard seed', 'fenugreek', 'saffron'], 'binders': ['rice', 'psyllium husks']},
+	'mexican': {'proteins': ['beef', 'pork', 'chicken', 'fish', 'shrimp'], 'vegetables': ['corn', 'squash', 'potato', 'beans', 'tomato', 'bell pepper', 'onion', 'avocado', 'jalapeno', 'zucchini', 'chili pepper'], 'spices': ['cilantro', 'garlic', 'oregano', 'cayenne', 'cinnamon', 'coriander', 'cumin', 'allspice', 'red chili powder'], 'binders': ['tortilla chips']},
+    'chinese': {'proteins': ['tofu'], 'vegetables': ['baby corn', 'bok choy', 'snow peas', 'eggplant', 'broccoli', 'mushrooms', 'bean sprout', 'green beans', 'peas'], 'spices': ['ginger', 'garlic', 'scallion', 'cilantro', 'sesame'], 'binders': ['rice', 'noodles']},
+    'japanese': {'proteins': ['fish', 'beef', 'pork', 'chicken'], 'vegetables': ['cucumber', 'eggplant', 'pumpkin', 'squash', 'onion', 'green onion', 'radish', 'mushrooms'], 'spices': ['soy sauce', 'ginger', 'red pepper', 'wasabi', 'mustard'], 'binders': ['panko']},
+    'greek': {'proteins': ['pork', 'chicken', 'beef', 'lamb'], 'vegetables': ['tomato', 'eggplant', 'potato', 'green beans', 'okra', 'bell pepper', 'onion'], 'spices': ['basil', 'thyme', 'fennel', 'parsley', 'cinnamon', 'allspice', 'cloves'], 'binders': ['breadcrumbs']},
+    'german': {'proteins': ['beef', 'venison', 'pork', 'fish'], 'vegetables': ['carrots', 'cauliflower', 'turnips', 'spinach', 'peas', 'beans', 'broccoli', 'cabbage', 'asparagus'], 'spices': ['parsley', 'thyme', 'laurel', 'chives', 'black pepper', 'cinnamon', 'nutmeg', 'cardamom', 'mustard', 'horseradish'], 'binders': ['breadcrumbs']},
+    'korean': {'proteins': ['beef', 'shrimp', 'fish', 'pork'], 'vegetables': ['radish', 'cabbage', 'carrot', 'onion', 'kimchi'], 'spices': ['gochugaru', 'gochujang', 'soy sauce', 'ginger', 'garlic'], 'binders': []}
 }

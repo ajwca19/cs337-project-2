@@ -85,52 +85,144 @@ def main():
          + str(len(steps)) + " steps.")
     
     #ask about initial viewing
-    get_started = input("Do you want to [1] view the list of ingredients, [2] start with the cooking, or [3] re-scale the recipe?")
+    get_started = input("Do you want to [1] view the list of ingredients, or [2] start with the cooking?")
     while True:
         if get_started == "1" or "ingredient" in get_started.lower():
             print("Got it. For this recipe, you will need...\n")
             for i in ingredients:
                 print(i)
-            after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
-            while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
-                ingredient_question = input("Ask away!")
-                if re.search("substitut[e|ion]|replace|instead", ingredient_question):
-                    potential_subs = identify_substitution(ingredient_question, units_list, unit_conversion)
+            after_ingredients = input("\nDo you want to [1] ask questions about or change the ingredient list, [2] scale the recipe up or down, or [3] get started cooking?")
+            
+            if after_ingredients == "2" or "scale" in after_ingredients.lower():
+                print("Sounds great, below please enter the factor by which you would like to scale the recipe, in decimal form.")
+                print("For example, to double the recipe you would enter the number 2, and to halve the recipe you would enter 0.5.")
+                while True:
+                    try:
+                        scaling_factor = float(input('Scaling factor: '))
+                    except ValueError:
+                        print("That doesn't look like a number in decimal form. Can you try again?")
+                        continue
+                    else:
+                        break
+                # Scaling the ingredients list, and getting dictionary of wording substitutions
+                ingredients, wording_sub_dict = scaling.ingredients_scale(ingredients, scaling_factor, units_list)
+                # Scaling the directions steps
+                steps = scaling.directions_scale(steps, scaling_factor, wording_sub_dict)
+                # Printing the newly scaled ingredients list
+                print("Got it. For this recipe, you will need...\n")
+                for i in ingredients:
+                    print(i)
+            
+                after_ingredients =  input("\nDo you want to [1] ask questions about or change the ingredient list, or [2] get started cooking?")
+            
+            while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower() or "change" in after_ingredients.lower() or "changes" in after_ingredients.lower():
+                ingredient_option = input("Do you want to [1] ask about an ingredient, [2] substitute a single ingredient, or [3] transform the whole recipe?")
+                
+                if ingredient_option == '1' or "question" in ingredient_option.lower() or "ask" in ingredient_option.lower():
+                    #ASKING ABOUT A SPECIFIC INGREDIENT
+                    ingredient_question = input("Ask away!")
+                    look_it_up(ingredient_question)
+                elif ingredient_option == '2' or re.search("substitut[e|ion]|replace|instead|single", ingredient_option.lower()):
+                    #SUBSTITUTING A SINGLE INGREDIENT
+                    print("Just so you know, this substitution won't be reflected in the steps of the recipe.")
+                    ingredient = input("What ingredient do you want to substitute?")
+                    (potential_subs, is_ingredient) = identify_substitution(ingredient, units_list, unit_conversion)
                     if len(potential_subs) == 0:
-                        print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
-                        look_it_up(ingredient_question, good_question = False)
+                        if is_ingredient:
+                            print("I haven't heard of any substitutes for " + ingredient + ". Let's see if Google knows.")
+                            look_it_up("substitute for " + ingredient_question, good_question = False)
+                        else:
+                            print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
+                            look_it_up("substitute for " + ingredient_question, good_question = False)
                     else:
                         print("Based on what I know, you should try " + pretty_list_print(potential_subs))
-                elif re.search("[Ww]hat (is|are)", ingredient_question):
-                    look_it_up(ingredient_question)
+                elif ingredient_option == '3' or re.search("transform|recipe|whole|vegan|vegetarian", ingredient_option.lower()):
+                    #TRANSFORMING THE WHOLE RECIPE
+                    print("Just so you know, these transformations won't be reflected in the steps of the recipe.")
+                    transformation_option = input("Do you want me to modify for [1] dietary restrictions or [2] global cuisine?")
+                    while transformation_option != "1" and transformation_option != "2" and not re.search("diet|restrict|allerg[y|ies|ic]|global|cuisine|vegetarian|vegan|dairy|gluten|kosher|halal|ethnic|world|non-veg|healthy", transformation_option.lower()):
+                        print("Sorry, I didn't quite get that.")
+                        transformation_option = input("Do you want me to modify for [1] dietary restrictions or [2] global cuisine?")
+                    if transformation_option == "1" or re.search("diet|restrict|allerg[y|ies|ic]|vegetarian|vegan|dairy|gluten|kosher|halal|non-veg|healthy|plant|meat", transformation_option.lower()):
+                        #transforming to dietary restrictions!
+                        if not re.search("vegetarian|vegan|dairy|gluten|kosher|halal|non-veg|healthy|plant|meat|allerg[y|ies|ic]", transformation_option.lower()):
+                            transformation_option = input("Got it! If you know what type of diet you need to modify to, enter it below. Otherwise, type\"options\" and I'll list off your options.")
+                            if re.search("option|list", transformation_option.lower()):
+                                print("I can modify the recipe to be the following:\n \
+                                      vegetarian or non-veg, vegan, healthy or unhealthy, dairy-free, \
+                                      gluten-free, kosher (I'll make everything pareve), or halal.")
+                                transformation_option = input("What do you want to do to the recipe?")
+                            while not re.search("vegetarian|vegan|dairy|gluten|kosher|halal|non-veg|healthy|plant|meat|allerg[y|ies|ic]", transformation_option.lower()):
+                                transformation_option = input("Please pick something that I know how to do!")
+                                if re.search("option|list", transformation_option.lower()):
+                                    print("I can modify the recipe to be the following:\n \
+                                      vegetarian or non-veg, vegan, healthy or unhealthy, dairy-free, \
+                                      gluten-free, kosher (I might not be perfect with this one), or halal.")
+                                    transformation_option = input("What do you want to do to the recipe?")
+                        if re.search("non-veg|(not vegetarian)|meat( |$)", transformation_option.lower()):
+                            #making the thing non-veg
+                            print("Let's make this a carnivore's delight!")
+                        elif re.search("vegetarian|meatless|meat-free", transformation_option.lower()):
+                            #making the thing vegetarian
+                            print("One vegetarian recipe, coming up!")
+                        elif re.search("vegan|plant", transformation_option.lower()):
+                            #making the thing vegan
+                            print("Eat plant-based, save the planet!")
+                        elif re.search("gluten", transformation_option.lower()):
+                            #making the thing gluten-free
+                            print("My stomach doesn't do well with gluten, either. It might be because I'm a computer.")
+                        elif re.search("dairy", transformation_option.lower()):
+                            #making the thing dairy-free
+                            print("My stomach doesn't do well with dairy, either. It might be because I'm a computer.")
+                        elif re.search("kosher", transformation_option.lower()):
+                            #kashrut is tricky
+                            kosher_option = input("Do you want to make this recipe dairy, meat, or pareve?")
+                            if re.search("dairy|milk", transformation_option.lower()):
+                                #kosher dairy
+                                print("Dairy it is!")
+                            elif re.search("meat", transformation_option.lower()):
+                                #kosher meat
+                                print("Meat it is!")
+                            elif re.search("pareve", transformation_option.lower()):
+                                #kosher pareve
+                                print("Pareve it is!")
+                            else:
+                                #pareve by default
+                                print("I didn't quite get that. I'll just make it pareve to be safe")
+                        elif re.search("halal", transformation_option.lower()):
+                            #making the thing halal
+                            print("I can make this halal!")
+                        elif re.search("unhealthy|(not healthy)", transformation_option.lower()):
+                            #making the thing unhealthy
+                            print("Love a good 'treat-yo'-self' day!")
+                        elif re.search("healthy", transformation_option.lower()):
+                            #making the thing healthy
+                            print("Healthy doesn't need to mean tasteless!")
+                        elif re.search("allerg[y|ies|ic]"):
+                            #making the thing allergy-friendly
+                            allergy_option = input("The only allergies I can handle are dairy, gluten, and meat. Which one of those do you want to modify for?")
+                            if re.search("dairy|milk", allergy_option.lower()):
+                                #dairy allergy = dairy-free
+                                print("Ah, a dairy allergy.")
+                            elif re.search("gluten", allergy_option.lower()):
+                                #gluten allergy = gluten-free
+                                print("Ah, a gluten allergy.")
+                            elif re.search("wheat", allergy_option.lower()):
+                                print("I can try and make this gluten-free to help with that, but it might not be perfect.")
+                            elif re.search("meat", allergy_option.lower()):
+                                print("Ah, a meat allergy.")
+                            else:
+                                print("Sorry, I don't know how to modify for that. Unfortunately, you'll need to figure that out on your own.")
+                    else:
+                        #transforming to global cuisine
                 else:
-                    print("I'm not sure how to answer that. I'll ask Google for you!")
-                    look_it_up(ingredient_question, good_question = False)
-                after_ingredients = input("Do you [1] have more questions or [2] want to get started cooking?")
+                    print("Sorry, I don't know what you're trying to say. I can't help you with that request.")
+                after_ingredients = input("Do you [1] have more questions/changes or [2] want to get started cooking?")
             print("Glad I could help! Let's get cooking!")
-            break
+            break   
+            
         elif get_started == "2" or "start" in get_started.lower() or "cook" in get_started.lower():
             print("Let's get cooking!")
-            break
-        elif get_started == "3" or "scale" in get_started.lower():
-            print("Sounds great, below please enter the factor by which you would like to scale the recipe, in decimal form.")
-            print("For example, to double the recipe you would enter the number 2, and to halve the recipe you would enter 0.5.")
-            while True:
-                try:
-                    scaling_factor = float(input('Scaling factor: '))
-                except ValueError:
-                    print("That doesn't look like a number in decimal form, please re-enter.")
-                    continue
-                else:
-                    break
-            # Scaling the ingredients list, and getting dictionary of wording substitutions
-            ingredients, wording_sub_dict = scaling.ingredients_scale(ingredients, scaling_factor, units_list)
-            # Scaling the directions steps
-            steps = scaling.directions_scale(steps, scaling_factor, wording_sub_dict)
-            # Printing the newly scaled ingredients list
-            print("Got it. For this recipe, you will need...\n")
-            for i in ingredients:
-                print(i)
             break
         else:
             print("I'm sorry, I didn't quite get that. Let's try again!")
@@ -559,14 +651,39 @@ def identify_relevant_ingredient(question, ingredients_list, units_list, units_c
                 if token.text in ingredient:
                     return ingredient
             return ""
-        
+    return ""
+     
+def transform_dietary(restriction, ingredients_list, units_list, unit_conversion):
+    diet_dictionary = ingredient_substitution.diet_dictionary
+    substitution_dictionary = ingredient_substitution.substitution_dictionary
+    for ingredient in ingredients_list:
+        parsed_ingredient = nlp(ingredient)
+        modified = False
+        for i in range(len(parsed_ingredient)):
+            token = parsed_ingredient[i]
+            if token.lemma_ in units_list or token.text in units_conversion.keys():
+                continue
+            elif token.text in ["of", "in"]:
+                continue
+            if token.lemma_ in diet_dictionary[restriction]:
+                #I can't eat this thing on my diet!
+                
+            if i < len(parsed_ingredient) - 1:
+                bigram = token.text + " " + parsed_ingredient[i+1].text
+                if bigram in diet_dictionary[restriction]:
+                    #I can't eat this thing on my diet!
+  
+def potential_subs()
 def identify_substitution(question, units_list, unit_conversion):
     parsed_question = nlp(question)
     dictionary = ingredient_substitution.substitution_dictionary
+    is_ingredient = True
     for token in parsed_question:
         if token.lemma_ in ["what", "can", "how", "should", "do", "I", "substitute", "replace", "instead", "of", "with", "a", "an", "the"]:
+            is_ingredient = False
             continue
         elif token.lemma_ in units_list or token.text in unit_conversion.keys():
+            is_ingredient = False
             continue
         elif token.pos_ != "NOUN":
             continue
@@ -574,8 +691,8 @@ def identify_substitution(question, units_list, unit_conversion):
             for ingredient in dictionary.keys():
                 if token.lemma_ in ingredient:
                     #print("I'm substituting " + ingredient)
-                    return dictionary[ingredient]
-        return []
+                    return (dictionary[ingredient], is_ingredient)
+        return ([], is_ingredient)
     
     
 if __name__ == "__main__":

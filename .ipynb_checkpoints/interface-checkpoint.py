@@ -20,6 +20,7 @@ import web_scraping
 import direction_parsing
 import ingredient_parsing
 import ingredient_substitution
+import scaling
 
 def main():
     # Creating a list of units commonly used in cooking
@@ -51,53 +52,104 @@ def main():
             print("This doesn't look like a URL to me:")
             recipe_url = input("Paste a recipe URL here to follow!")
         #scrape the recipe
-        ingredients_raw, directions_raw = web_scraping.recipe_extract(recipe_url)
-        if len(ingredients_raw) != 0 and len(directions_raw) != 0:
+        ingredients, directions_raw = web_scraping.recipe_extract(recipe_url)
+        if len(ingredients) != 0 and len(directions_raw) != 0:
             print("Sounds delicious! I'm ready to go when you are!")
             break
         else:
             print("Sorry, I've never seen a recipe like this before. Can you try something different?")
-    
-    #get list of ingredients
-    ingredients = ingredients_raw #will change this for project 3
+
+    # Stripping away stopwords, predetermined units and/or equipment from list of ingredients for direction parsing purposes
+    inflection_engine = inflect.engine()
+    new_ingredients = ingredients.copy()
+    for ingredient_idx, i in enumerate(ingredients):
+        new_ingredients[ingredient_idx] = i.replace(',', "")
+        new_sentence = new_ingredients[ingredient_idx]
+        for word in new_ingredients[ingredient_idx].split(" "):
+            for unit in units_list:
+                if word == unit or word == inflection_engine.plural(unit):
+                    new_sentence = new_sentence.replace(word, "")
+            for equipment in equipment_list:
+                if word == equipment:
+                    new_sentence = new_sentence.replace(word, "")
+        new_ingredients[ingredient_idx] = new_sentence
     
     #get list of steps
-    steps = direction_parsing.direction_search_table(directions_raw, ingredients, units_list, unit_conversion, equipment_list, units_of_time_list, temp_levels_list)
-    
+    steps = direction_parsing.direction_search_table(directions_raw, new_ingredients, units_list, unit_conversion, equipment_list, units_of_time_list, temp_levels_list)
+    steps = direction_parsing.ingredient_name_join(steps, ingredients)
+    steps = direction_parsing.ingredient_infer(steps, ingredients, units_list)
+    steps = direction_parsing.equipment_infer(steps)
+    steps = direction_parsing.directions_clean(steps)
+
     print("I just looked it over: the recipe you picked calls for " + str(len(ingredients)) + " ingredients and has " 
          + str(len(steps)) + " steps.")
     
     #ask about initial viewing
-    get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
+    get_started = input("Do you want to [1] view the list of ingredients, or [2] start with the cooking?")
     while True:
         if get_started == "1" or "ingredient" in get_started.lower():
             print("Got it. For this recipe, you will need...\n")
-            for i in ingredients_raw:
+            for i in ingredients:
                 print(i)
-            after_ingredients = input("\nDo you want to [1] ask questions about the ingredient list, or [2] get started cooking?")
-            while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower():
-                ingredient_question = input("Ask away!")
-                if re.search("substitut[e|ion]|replace|instead", ingredient_question):
-                    potential_subs = identify_substitution(ingredient_question, units_list, unit_conversion)
+            after_ingredients = input("\nDo you want to [1] ask questions about or change the ingredient list, [2] scale the recipe up or down, or [3] get started cooking?")
+            
+            if after_ingredients == "2" or "scale" in after_ingredients.lower():
+                print("Sounds great, below please enter the factor by which you would like to scale the recipe, in decimal form.")
+                print("For example, to double the recipe you would enter the number 2, and to halve the recipe you would enter 0.5.")
+                while True:
+                    try:
+                        scaling_factor = float(input('Scaling factor: '))
+                    except ValueError:
+                        print("That doesn't look like a number in decimal form. Can you try again?")
+                        continue
+                    else:
+                        break
+                # Scaling the ingredients list, and getting dictionary of wording substitutions
+                ingredients, wording_sub_dict = scaling.ingredients_scale(ingredients, scaling_factor, units_list)
+                # Scaling the directions steps
+                steps = scaling.directions_scale(steps, scaling_factor, wording_sub_dict)
+                # Printing the newly scaled ingredients list
+                print("Got it. For this recipe, you will need...\n")
+                for i in ingredients:
+                    print(i)
+            
+                after_ingredients =  input("\nDo you want to [1] ask questions about or change the ingredient list, or [2] get started cooking?")
+            
+            while after_ingredients == "1" or "question" in after_ingredients.lower() or "ingredient" in after_ingredients.lower() or "change" in after_ingredients.lower() or "changes" in after_ingredients.lower():
+                ingredient_option = input("Do you want to [1] ask about an ingredient, [2] substitute a single ingredient, or [3] transform the whole recipe?")
+                
+                if ingredient_option == '1' or "question" in ingredient_option.lower() or "ask" in ingredient_option.lower():
+                    #ASKING ABOUT A SPECIFIC INGREDIENT
+                    ingredient_question = input("Ask away!")
+                    look_it_up(ingredient_question)
+                elif ingredient_option == '2' or re.search("substitut[e|ion]|replace|instead|single", ingredient_option.lower()):
+                    #SUBSTITUTING A SINGLE INGREDIENT
+                    ingredient = input("What ingredient do you want to substitute?")
+                    (potential_subs, is_ingredient) = identify_substitution(ingredient, units_list, unit_conversion)
                     if len(potential_subs) == 0:
-                        print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
-                        look_it_up(ingredient_question, good_question = False)
+                        if is_ingredient:
+                            print("I haven't heard of any substitutes for " + ingredient + ". Let's see if Google knows.")
+                            look_it_up("substitute for " + ingredient_question, good_question = False)
+                        else:
+                            print("I haven't heard of any substitutes for that ingredient. Let's see if Google knows.")
+                            look_it_up("substitute for " + ingredient_question, good_question = False)
                     else:
                         print("Based on what I know, you should try " + pretty_list_print(potential_subs))
-                elif re.search("[Ww]hat (is|are)", ingredient_question):
-                    look_it_up(ingredient_question)
+                elif ingredient_option == '3' or re.search("transform|recipe|whole|vegan|vegetarian", ingredient_option.lower()):
+                    #TRANSFOMRING THE WHOLE RECIPE
+                    print("Cool! ")
                 else:
-                    print("I'm not sure how to answer that. I'll ask Google for you!")
-                    look_it_up(ingredient_question, good_question = False)
-                after_ingredients = input("Do you [1] have more questions or [2] want to get started cooking?")
+                    print("Sorry, I don't know what you're trying to say. I can't help you with that request.")
+                after_ingredients = input("Do you [1] have more questions/changes or [2] want to get started cooking?")
             print("Glad I could help! Let's get cooking!")
-            break
+            break   
+            
         elif get_started == "2" or "start" in get_started.lower() or "cook" in get_started.lower():
             print("Let's get cooking!")
             break
         else:
             print("I'm sorry, I didn't quite get that. Let's try again!")
-            get_started = input("Do you want to [1] view the list of ingredients or [2] start with the cooking?")
+            get_started = input("Do you want to [1] view the list of ingredients, [2] start with the cooking, or [3] re-scale the recipe?")
     
     assistant_guide = input("Before we get started, do you want to know what I can do? [Y/N]")
     if "y" == assistant_guide.lower() or "yes" in assistant_guide.lower():
@@ -141,7 +193,7 @@ def main():
             #question is repeating the most recent step
             if re.search("[Ii]ngredient", question):
                 print("Here's the list of ingredients for the recipe once more:")
-                for i in ingredients_raw:
+                for i in ingredients:
                     print(i)
             else:
                 print("One more time? Okay! You need to do the following:")
@@ -223,12 +275,19 @@ def main():
                         if len(local_amount) == 0:
                             print("The recipe calls for " + relevant_ingredient)
                         else:
-                            local_ingredients = steps.loc[step_ptr].ingredient
+                            local_ingredients = steps.loc[step_ptr].ingredient_name
                             ingredient_index = -1
                             for i in range(len(local_ingredients)):
                                 if re.search(local_ingredients[i], relevant_ingredient):
                                     #the amount is specified in the step
-                                    print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                                    message = "This step calls for "
+                                    if len(local_amount) > 0:
+                                        message += str(local_amount[i]) + " "
+                                    if len(local_units) > 0:
+                                        message += str(local_units[i]) + " "
+                                    message += str(local_ingredients[i])
+                                    print(message)
+                                ingredient_index = i
                             if ingredient_index == -1:
                                 print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
             
@@ -269,11 +328,11 @@ def main():
                         print("I found this information in step " + str(step + 1) + ". I hope it helps: " + pretty_list_print(ingredient_name))
                     elif "2" in where_to_look:
                         print("Here's the list of ingredients for the whole recipe:")
-                        for i in ingredients_raw:
+                        for i in ingredients:
                             print(i)
                     else:
                         print("I didn't quite get that. Here's the ingredients for the entire recipe:")
-                        for i in ingredients_raw:
+                        for i in ingredients:
                             print(i)
             elif re.search("temperature|heat", question):
                 if steps.loc[step_ptr].action_temperature != "":
@@ -305,18 +364,25 @@ def main():
                     if len(local_amount) == 0:
                         print("The recipe calls for " + relevant_ingredient)
                     else:
-                        local_ingredients = steps.loc[step_ptr].ingredient
+                        local_ingredients = steps.loc[step_ptr].ingredient_name
                         ingredient_index = -1
                         for i in range(len(local_ingredients)):
                             if re.search(local_ingredients[i], relevant_ingredient):
                                 #the amount is specified in the step
-                                print("This step calls for " + str(local_amount[i]) + " " + str(local_units[i]) + " " + str(local_ingredients[i]))
+                                message = "This step calls for "
+                                if len(local_amount) > 0:
+                                    message += str(local_amount[i]) + " "
+                                if len(local_units) > 0:
+                                    message += str(local_units[i]) + " "
+                                message += str(local_ingredients[i])
+                                print(message)
+                            ingredient_index = i
                         if ingredient_index == -1:
                             print("I couldn't find any information in this step. The recipe calls for " + relevant_ingredient)
             #WHAT IS QUESTIONS HAVE LOWEST PRIORITY
             elif re.search("[Ww]hat (is|are)", question):
                 if re.search("this|that|these|those", question):
-                    potential_topics = steps.loc[step_ptr].ingredient.append(steps.loc[step_ptr].equipment)
+                    potential_topics = steps.loc[step_ptr].ingredient_name.append(steps.loc[step_ptr].equipment)
                     if len(potential_topics) == 1:
                         print("I don't know much about " + potential_topics[0] + ". I'll ask Google!")
                         look_it_up("what is " + potential_topics[0], good_question = False)
@@ -467,7 +533,8 @@ def pretty_list_print(string_list):
     final_string = ""
     for i in range(len(string_list) - 1):
         final_string += string_list[i] + ", "
-    final_string += string_list[-1]
+    if len(string_list) > 0:
+        final_string += string_list[-1]
     return final_string
 
 def look_it_up(query, good_question = True):
@@ -511,10 +578,13 @@ def identify_relevant_ingredient(question, ingredients_list, units_list, units_c
 def identify_substitution(question, units_list, unit_conversion):
     parsed_question = nlp(question)
     dictionary = ingredient_substitution.substitution_dictionary
+    is_ingredient = True
     for token in parsed_question:
         if token.lemma_ in ["what", "can", "how", "should", "do", "I", "substitute", "replace", "instead", "of", "with", "a", "an", "the"]:
+            is_ingredient = False
             continue
         elif token.lemma_ in units_list or token.text in unit_conversion.keys():
+            is_ingredient = False
             continue
         elif token.pos_ != "NOUN":
             continue
@@ -522,8 +592,8 @@ def identify_substitution(question, units_list, unit_conversion):
             for ingredient in dictionary.keys():
                 if token.lemma_ in ingredient:
                     #print("I'm substituting " + ingredient)
-                    return dictionary[ingredient]
-        return []
+                    return (dictionary[ingredient], is_ingredient)
+        return ([], is_ingredient)
     
     
 if __name__ == "__main__":
