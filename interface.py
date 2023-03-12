@@ -162,59 +162,77 @@ def main():
                         if re.search("non-veg|(not vegetarian)|meat( |$)", transformation_option.lower()):
                             #making the thing non-veg
                             print("Let's make this a carnivore's delight!")
+                            transform_dietary("non-vegetarian", ingredients, units_list, unit_conversion)
                         elif re.search("vegetarian|meatless|meat-free", transformation_option.lower()):
                             #making the thing vegetarian
                             print("One vegetarian recipe, coming up!")
+                            transform_dietary("vegetarian", ingredients, units_list, unit_conversion)
                         elif re.search("vegan|plant", transformation_option.lower()):
                             #making the thing vegan
                             print("Eat plant-based, save the planet!")
+                            transform_dietary("vegan", ingredients, units_list, unit_conversion)
                         elif re.search("gluten", transformation_option.lower()):
                             #making the thing gluten-free
                             print("My stomach doesn't do well with gluten, either. It might be because I'm a computer.")
+                            transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                         elif re.search("dairy", transformation_option.lower()):
                             #making the thing dairy-free
                             print("My stomach doesn't do well with dairy, either. It might be because I'm a computer.")
+                            transform_dietary("lactose-free", ingredients, units_list, unit_conversion)
                         elif re.search("kosher", transformation_option.lower()):
                             #kashrut is tricky
                             kosher_option = input("Do you want to make this recipe dairy, meat, or pareve?")
                             if re.search("dairy|milk", transformation_option.lower()):
                                 #kosher dairy
                                 print("Dairy it is!")
+                                transform_dietary("kosher dairy", ingredients, units_list, unit_conversion)
                             elif re.search("meat", transformation_option.lower()):
                                 #kosher meat
                                 print("Meat it is!")
+                                transform_dietary("kosher meat", ingredients, units_list, unit_conversion)
                             elif re.search("pareve", transformation_option.lower()):
                                 #kosher pareve
                                 print("Pareve it is!")
+                                transform_dietary("kosher pareve", ingredients, units_list, unit_conversion)
                             else:
                                 #pareve by default
                                 print("I didn't quite get that. I'll just make it pareve to be safe")
+                                transform_dietary("kosher pareve", ingredients, units_list, unit_conversion)
                         elif re.search("halal", transformation_option.lower()):
                             #making the thing halal
                             print("I can make this halal!")
+                            transform_dietary("halal", ingredients, units_list, unit_conversion)
                         elif re.search("unhealthy|(not healthy)", transformation_option.lower()):
                             #making the thing unhealthy
                             print("Love a good 'treat-yo'-self' day!")
+                            transform_dietary("unhealthy", ingredients, units_list, unit_conversion)
                         elif re.search("healthy", transformation_option.lower()):
                             #making the thing healthy
                             print("Healthy doesn't need to mean tasteless!")
+                            transform_dietary("healthy", ingredients, units_list, unit_conversion)
                         elif re.search("allerg[y|ies|ic]"):
                             #making the thing allergy-friendly
                             allergy_option = input("The only allergies I can handle are dairy, gluten, and meat. Which one of those do you want to modify for?")
                             if re.search("dairy|milk", allergy_option.lower()):
                                 #dairy allergy = dairy-free
                                 print("Ah, a dairy allergy.")
+                                transform_dietary("lactose-free", ingredients, units_list, unit_conversion)
                             elif re.search("gluten", allergy_option.lower()):
                                 #gluten allergy = gluten-free
                                 print("Ah, a gluten allergy.")
+                                transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                             elif re.search("wheat", allergy_option.lower()):
                                 print("I can try and make this gluten-free to help with that, but it might not be perfect.")
                             elif re.search("meat", allergy_option.lower()):
                                 print("Ah, a meat allergy.")
+                                transform_dietary("vegetarian", ingredients, units_list, unit_conversion)
                             else:
                                 print("Sorry, I don't know how to modify for that. Unfortunately, you'll need to figure that out on your own.")
                     else:
                         #transforming to global cuisine
+                        cuisine_result = input("What type of cuisine do you want to convert this recipe to? Say \"list\" for a list of cuisines that I'm familiar with")
+                        
+                        
                 else:
                     print("Sorry, I don't know what you're trying to say. I can't help you with that request.")
                 after_ingredients = input("Do you [1] have more questions/changes or [2] want to get started cooking?")
@@ -653,7 +671,7 @@ def identify_relevant_ingredient(question, ingredients_list, units_list, units_c
             return ""
     return ""
      
-def transform_dietary(restriction, ingredients_list, units_list, unit_conversion):
+def transform_dietary(restriction, ingredients_list, units_list, units_conversion):
     diet_dictionary = ingredient_substitution.diet_dictionary
     substitution_dictionary = ingredient_substitution.substitution_dictionary
     for ingredient in ingredients_list:
@@ -667,13 +685,107 @@ def transform_dietary(restriction, ingredients_list, units_list, unit_conversion
                 continue
             if token.lemma_ in diet_dictionary[restriction]:
                 #I can't eat this thing on my diet!
-                
+                modified = True
+                substitutes = potential_subs_restriction(token.lemma_, restriction)
+                if len(substitutes) == 0:
+                    #I didn't find any viable substitutes!
+                    print('I can\'t find any substitutes for ' + token.lemma_ + '! Either omit it, or I can look for you on Google.')
+                    look_up_sub = input("Do you want me to find a substitute for " + token.lemma_ + " on Google?")
+                    if look_up_sub.lower() == 'y' or look_up_sub.lower == 'yes':
+                        print("Got it!")
+                        look_it_up("recipe substitute " + token.lemma_, good_question = False)
+                    else:
+                        print("Hope that it works out!")
+                else:
+                    print("I think that you can substitute " + token.lemma_ + " with: " + pretty_list_print(substitutes))
+                break
             if i < len(parsed_ingredient) - 1:
                 bigram = token.text + " " + parsed_ingredient[i+1].text
                 if bigram in diet_dictionary[restriction]:
+                    modified = True
                     #I can't eat this thing on my diet!
+                    substitutes = potential_subs_restriction(bigram, restriction)
+                    if len(substitutes) == 0:
+                        #I didn't find any viable substitutes!
+                        print('I can\'t find any substitutes for ' + bigram + '! Either omit it, or I can look for you on Google.')
+                        look_up_sub = input("Do you want me to find a substitute for " + bigram + " on Google?")
+                        if look_up_sub.lower() == 'y' or look_up_sub.lower == 'yes':
+                            print("Got it!")
+                            look_it_up("recipe substitute " + bigram, good_question = False)
+                        else:
+                            print("Hope that it works out!")
+                    else:
+                        print("I think that you can substitute " + bigram + " with: " + pretty_list_print(substitutes))
+                break
+        if modified == False:
+            print("As far as I know, you're able to use " + ingredient + " in this recipe.")
+    return
+
+def transform_cuisine(cuisine, ingredients_list, units_list, units_conversion):
+    cuisine_dictionary = ingredient_substitution.cuisine_dictionary
+    substitution_dictionary = ingredient_substitution.substitution_dictionary
+    for ingredient in ingredients_list:
+        parsed_ingredient = nlp(ingredient)
+        addressed = False
+        for i in range(len(parsed_ingredient)):
+            token = parsed_ingredient[i]
+            if token.lemma_ in units_list or token.text in units_conversion.keys():
+                continue
+            elif token.text in ["of", "in"]:
+                continue
+            #deal with 1 token keyword
+            subs = potential_subs_cuisine(token.lemma_, cuisine.lower())
+            if subs == False:
+                addressed = True
+                #this ingredient is correct for the actual cuisine
+                print(token.lemma_ + " is good to keep in the recipe")
+            elif len(subs) != 0:
+                addressed = True
+                print("I think you can substitute " + token.lemma_ + " with the following: " + pretty_list_print(subs))
+            if i < len(parsed_ingredient) - 1:
+                 #deal with bigram keyword
+                bigram = token.text + " " + parsed_ingredient[i+1].text
+                subs = potential_subs_cuisine(bigram, cuisine.lower())
+                if subs == False:
+                    addressed = True
+                    #this ingredient is correct for the actual cuisine
+                    print(bigram + " is good to keep in the recipe")
+                elif len(subs) != 0:
+                    addressed = True
+                    print("I think you can substitute " + token.lemma_ + " with the following: " + pretty_list_print(subs))
+        if addressed == False:
+            print("I don't know how to make " + ingredient + " more " + cuisine + ". Maybe just keep it as is?")
+                
+    return
+
   
-def potential_subs()
+def potential_subs_restriction(ingredient, restriction):
+    diet_dictionary = ingredient_substitution.diet_dictionary
+    substitution_dictionary = ingredient_substitution.substitution_dictionary
+    all_subs = substitution_dictionary[ingredient]
+    valid_subs = []
+    for potential_ingredient in all_subs:
+        if potential_ingredient not in diet_dictionary[restriction]:
+            valid_subs.append(potential_ingredient)
+    return valid_subs
+    
+def potential_subs_cuisine(ingredient, cuisine):
+    cuisine_dictionary = ingredient_substitution.cuisine_dictionary
+    substitution_dictionary = ingredient_substitution.substitution_dictionary
+    for ingredient_type in cuisine_dictionary.keys():
+        if ingredient in cuisine_dictionary[ingredient_type]:
+            #the ingredient is in the cuisine and isn't an issue
+            return False
+    valid_subs = []
+    if ingredient in substitution_dictionary.keys():
+        all_subs = substitution_dictionary[ingredient]
+        for potential_ingredient in all_subs:
+            for ingredient_type in cuisine_dictionary.keys():
+                if potential_ingredient in cuisine_dictionary[ingredient_type]:
+                    valid_subs.append(potential_ingredient)
+    return valid_subs
+    
+    
 def identify_substitution(question, units_list, unit_conversion):
     parsed_question = nlp(question)
     dictionary = ingredient_substitution.substitution_dictionary
