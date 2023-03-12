@@ -717,22 +717,6 @@ def transform_dietary(restriction, ingredients_list, units_list, units_conversio
             elif token.text in ["of", "in"]:
                 continue
             #print("I'm testing " + token.lemma_)
-            if token.lemma_ in diet_dictionary[restriction]:
-                #I can't eat this thing on my diet!
-                modified = True
-                substitutes = potential_subs_restriction(token.lemma_, restriction)
-                if len(substitutes) == 0:
-                    #I didn't find any viable substitutes!
-                    print('I can\'t find any substitutes for ' + token.lemma_ + '! Either omit it, or I can look for you on Google.')
-                    look_up_sub = input("Do you want me to find a substitute for " + token.lemma_ + " on Google?")
-                    if look_up_sub.lower() == 'y' or look_up_sub.lower == 'yes':
-                        print("Got it!")
-                        look_it_up("recipe substitute " + token.lemma_, good_question = False)
-                    else:
-                        print("Hope that it works out!")
-                else:
-                    print("I think that you can substitute " + token.lemma_ + " with: " + pretty_list_print(substitutes))
-                break
             if i < len(parsed_ingredient) - 1:
                 bigram = token.text + " " + parsed_ingredient[i+1].text
                 #print("I'm testing " + bigram)
@@ -752,6 +736,23 @@ def transform_dietary(restriction, ingredients_list, units_list, units_conversio
                     else:
                         print("I think that you can substitute " + bigram + " with: " + pretty_list_print(substitutes))
                     break
+            if token.lemma_ in diet_dictionary[restriction]:
+                #I can't eat this thing on my diet!
+                modified = True
+                substitutes = potential_subs_restriction(token.lemma_, restriction)
+                if len(substitutes) == 0:
+                    #I didn't find any viable substitutes!
+                    print('I can\'t find any substitutes for ' + token.lemma_ + '! Either omit it, or I can look for you on Google.')
+                    look_up_sub = input("Do you want me to find a substitute for " + token.lemma_ + " on Google?")
+                    if look_up_sub.lower() == 'y' or look_up_sub.lower == 'yes':
+                        print("Got it!")
+                        look_it_up("recipe substitute " + token.lemma_, good_question = False)
+                    else:
+                        print("Hope that it works out!")
+                else:
+                    print("I think that you can substitute " + token.lemma_ + " with: " + pretty_list_print(substitutes))
+                break
+           
         if modified == False:
             print("As far as I know, you're able to use " + ingredient + " in this recipe.")
     return
@@ -764,19 +765,11 @@ def transform_cuisine(cuisine, ingredients_list, units_list, units_conversion):
         addressed = False
         for i in range(len(parsed_ingredient)):
             token = parsed_ingredient[i]
+            #print("I'm looking at " + token.text)
             if token.lemma_ in units_list or token.text in units_conversion.keys():
                 continue
             elif token.text in ["of", "in"]:
                 continue
-            #deal with 1 token keyword
-            subs = potential_subs_cuisine(token.lemma_, cuisine.lower())
-            if subs == False:
-                addressed = True
-                #this ingredient is correct for the actual cuisine
-                print(token.lemma_ + " is good to keep in the recipe")
-            elif len(subs) != 0:
-                addressed = True
-                print("I think you can substitute " + token.lemma_ + " with the following: " + pretty_list_print(subs))
             if i < len(parsed_ingredient) - 1:
                  #deal with bigram keyword
                 bigram = token.text + " " + parsed_ingredient[i+1].text
@@ -787,7 +780,17 @@ def transform_cuisine(cuisine, ingredients_list, units_list, units_conversion):
                     print(bigram + " is good to keep in the recipe")
                 elif len(subs) != 0:
                     addressed = True
-                    print("I think you can substitute " + token.lemma_ + " with the following: " + pretty_list_print(subs))
+                    print("I think you can substitute " + bigram + " with the following: " + pretty_list_print(subs))
+            #deal with 1 token keyword
+            subs = potential_subs_cuisine(token.lemma_, cuisine.lower())
+            if subs == False:
+                addressed = True
+                #this ingredient is correct for the actual cuisine
+                print(token.lemma_ + " is good to keep in the recipe")
+            elif len(subs) != 0:
+                addressed = True
+                print("I think you can substitute " + token.lemma_ + " with the following: " + pretty_list_print(subs))
+            
         if addressed == False:
             print("I don't know how to make " + ingredient + " more " + cuisine + ". Maybe just keep it as is?")
                 
@@ -808,16 +811,18 @@ def potential_subs_restriction(ingredient, restriction):
 def potential_subs_cuisine(ingredient, cuisine):
     cuisine_dictionary = ingredient_substitution.cuisine_dictionary
     substitution_dictionary = ingredient_substitution.substitution_dictionary
+    #print("My ingredient is " + ingredient)
     for ingredient_type in cuisine_dictionary.keys():
         if ingredient in cuisine_dictionary[ingredient_type]:
             #the ingredient is in the cuisine and isn't an issue
             return False
     valid_subs = []
     if ingredient in substitution_dictionary.keys():
+        #print("I'm in the substitution dictionary")
         all_subs = substitution_dictionary[ingredient]
         for potential_ingredient in all_subs:
-            for ingredient_type in cuisine_dictionary.keys():
-                if potential_ingredient in cuisine_dictionary[ingredient_type]:
+            for ingredient_type in cuisine_dictionary[cuisine].keys():
+                if potential_ingredient in cuisine_dictionary[cuisine][ingredient_type]:
                     valid_subs.append(potential_ingredient)
     return valid_subs
     

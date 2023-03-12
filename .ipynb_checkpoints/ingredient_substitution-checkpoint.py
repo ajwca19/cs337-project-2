@@ -107,7 +107,7 @@ substitution_dictionary = {
     'chocolate': ['carob'],
     'oyster sauce': ['Worcestershire sauce', 'anchovy paste', 'balsamic vinegar'],
     'soy sauce': ['salt', 'wine'],
-    'wine': ['vinegar', 'stock', 'grape juice']
+    'wine': ['vinegar', 'stock', 'grape juice', 'apple juice']
 }
 
 # Generating a dictionary of foods you cannot eat on common diets
@@ -119,8 +119,8 @@ diet_dictionary = {
 	'low carb': ['bread', 'pasta', 'potato', 'rice', 'corn', 'oatmeal', 'beans', 'lentils', 'milk', 'sugar'],
 	'lactose-free': ['butter', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream', 'mascarpone cheese', 'ricotta cheese', 'heavy cream', 'heavy whipping cream', 'milk chocolate', 'half-and-half'],
 	'gluten-free': ['bread', 'tortilla', 'pasta', 'cereal', 'crackers', 'pretzels', 'bagel', 'cookies', 'cake', 'pie', 'doughnuts', 'couscous', 'soy sauce', 'salad dressing', 'gravy', 'ketchup', 'beer'],
-	'healthy': ['butter', 'margarine', 'lard', 'palm oil', 'coconut oil', 'mayonnaise', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'beef', 'pork', 'sausage', 'bacon', 'prosciutto', 'chips', 'crackers', 'sugar', 'syrup', 'cookies', 'egg', 'chocolate', 'milk chocolate'],
-	'unhealthy': ['avocado', 'nuts', 'sesame seeds', 'vegetable oil', 'olive oil', 'sesame oil', 'fish', 'salmon', 'chicken', 'turkey', 'tofu', 'jackfruit', 'brown rice', 'beans', 'peas'],
+	'healthy': ['butter', 'margarine', 'lard', 'palm oil', 'coconut oil', 'mayonnaise', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'beef', 'pork', 'sausage', 'bacon', 'prosciutto', 'chips', 'crackers', 'sugar', 'syrup', 'cookies', 'egg', 'chocolate', 'milk chocolate', 'wine', 'grape juice', 'apple juice'],
+	'unhealthy': ['avocado', 'nuts', 'vegetable oil', 'olive oil', 'sesame oil', 'fish', 'salmon', 'chicken', 'turkey', 'tofu', 'jackfruit', 'brown rice', 'beans', 'peas'],
 	'kosher dairy': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin', 'squid', 'beef', 'turkey', 'chicken', 'sausage', 'lamb'],
     'kosher meat': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin', 'squid', 'butter', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream', 'mascarpone cheese', 'ricotta cheese', 'heavy cream', 'heavy whipping cream', 'milk chocolate', 'half-and-half'],
     'kosher pareve': ['pork', 'shrimp', 'crayfish', 'crab', 'lobster', 'clams', 'scallops', 'oysters', 'mussels', 'gelatin', 'squid', 'beef', 'turkey', 'chicken', 'sausage', 'lamb', 'butter', 'cheese', 'cream cheese', 'sour cream', 'milk', 'ice cream', 'yogurt', 'buttermilk', 'whipped cream', 'mascarpone cheese', 'ricotta cheese', 'heavy cream', 'heavy whipping cream', 'milk chocolate', 'half-and-half'],
