@@ -162,59 +162,109 @@ def main():
                         if re.search("non-veg|(not vegetarian)|meat( |$)", transformation_option.lower()):
                             #making the thing non-veg
                             print("Let's make this a carnivore's delight!")
+                            transform_dietary("non-vegetarian", ingredients, units_list, unit_conversion)
                         elif re.search("vegetarian|meatless|meat-free", transformation_option.lower()):
                             #making the thing vegetarian
                             print("One vegetarian recipe, coming up!")
+                            transform_dietary("vegetarian", ingredients, units_list, unit_conversion)
                         elif re.search("vegan|plant", transformation_option.lower()):
                             #making the thing vegan
                             print("Eat plant-based, save the planet!")
+                            transform_dietary("vegan", ingredients, units_list, unit_conversion)
                         elif re.search("gluten", transformation_option.lower()):
                             #making the thing gluten-free
                             print("My stomach doesn't do well with gluten, either. It might be because I'm a computer.")
+                            transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                         elif re.search("dairy", transformation_option.lower()):
                             #making the thing dairy-free
                             print("My stomach doesn't do well with dairy, either. It might be because I'm a computer.")
+                            transform_dietary("lactose-free", ingredients, units_list, unit_conversion)
                         elif re.search("kosher", transformation_option.lower()):
                             #kashrut is tricky
                             kosher_option = input("Do you want to make this recipe dairy, meat, or pareve?")
                             if re.search("dairy|milk", transformation_option.lower()):
                                 #kosher dairy
                                 print("Dairy it is!")
+                                transform_dietary("kosher dairy", ingredients, units_list, unit_conversion)
                             elif re.search("meat", transformation_option.lower()):
                                 #kosher meat
                                 print("Meat it is!")
+                                transform_dietary("kosher meat", ingredients, units_list, unit_conversion)
                             elif re.search("pareve", transformation_option.lower()):
                                 #kosher pareve
                                 print("Pareve it is!")
+                                transform_dietary("kosher pareve", ingredients, units_list, unit_conversion)
                             else:
                                 #pareve by default
                                 print("I didn't quite get that. I'll just make it pareve to be safe")
+                                transform_dietary("kosher pareve", ingredients, units_list, unit_conversion)
                         elif re.search("halal", transformation_option.lower()):
                             #making the thing halal
                             print("I can make this halal!")
+                            transform_dietary("halal", ingredients, units_list, unit_conversion)
                         elif re.search("unhealthy|(not healthy)", transformation_option.lower()):
                             #making the thing unhealthy
                             print("Love a good 'treat-yo'-self' day!")
+                            transform_dietary("unhealthy", ingredients, units_list, unit_conversion)
                         elif re.search("healthy", transformation_option.lower()):
                             #making the thing healthy
                             print("Healthy doesn't need to mean tasteless!")
+                            transform_dietary("healthy", ingredients, units_list, unit_conversion)
                         elif re.search("allerg[y|ies|ic]"):
                             #making the thing allergy-friendly
                             allergy_option = input("The only allergies I can handle are dairy, gluten, and meat. Which one of those do you want to modify for?")
                             if re.search("dairy|milk", allergy_option.lower()):
                                 #dairy allergy = dairy-free
                                 print("Ah, a dairy allergy.")
+                                transform_dietary("lactose-free", ingredients, units_list, unit_conversion)
                             elif re.search("gluten", allergy_option.lower()):
                                 #gluten allergy = gluten-free
                                 print("Ah, a gluten allergy.")
+                                transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                             elif re.search("wheat", allergy_option.lower()):
                                 print("I can try and make this gluten-free to help with that, but it might not be perfect.")
+                                transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                             elif re.search("meat", allergy_option.lower()):
                                 print("Ah, a meat allergy.")
+                                transform_dietary("vegetarian", ingredients, units_list, unit_conversion)
                             else:
                                 print("Sorry, I don't know how to modify for that. Unfortunately, you'll need to figure that out on your own.")
                     else:
                         #transforming to global cuisine
+                        cuisine_result = input("What type of cuisine do you want to convert this recipe to? Say \"list\" for a list of cuisines that I'm familiar with")
+                        if re.search("list", cuisine_result.lower()):
+                            print("I have knowledge about the following cuisines: Chinese, South Asian, Italian, Mexican, Japanese, German, Korean, and Greek")
+                            cuisine_result = input("What type of cuisine do you want to convert this recipe to?")
+                        if re.search("chin[a|ese]", cuisine_result.lower()):
+                            #chinese cooking
+                            print("I can do Chinese!")
+                            transform_cuisine("Chinese", ingredients, units_list, unit_conversion)
+                        elif re.search("desi|india(n)?|(south asia(n)?)", cuisine_result.lower()):
+                            print("Let's do South Asian!")
+                            transform_cuisine("South Asian", ingredients, units_list, unit_conversion)
+                        elif re.search("ital[y|ian]", cuisine_result.lower()):
+                            print("Andiamo!")
+                            transform_cuisine("Italian", ingredients, units_list, unit_conversion)
+                        elif re.search("mexic[o|an]", cuisine_result.lower()):
+                            print("¡Vamanos!")
+                            transform_cuisine("Mexican", ingredients, units_list, unit_conversion)
+                        elif re.search("japan(ese)?", cuisine_result.lower()):
+                            print("Japanese sounds great!")
+                            transform_cuisine("Japanese", ingredients, units_list, unit_conversion)
+                        elif re.search("german(y)?", cuisine_result.lower()):
+                            print("German is good!")
+                            transform_cuisine("German", ingredients, units_list, unit_conversion)
+                        elif re.search("korea(n)?", cuisine_result.lower()):
+                            print("Korean? Yum!")
+                            transform_cuisine("Korean", ingredients, units_list, unit_conversion)
+                        elif re.search("gree[k|ce]", cuisine_result.lower()):
+                            print("Go Greek!")
+                            transform_cuisine("Greek", ingredients, units_list, unit_conversion)
+                        else:
+                            print("I don't recognize that country. Better luck next time!")
+                        
+                            
+                        
                 else:
                     print("Sorry, I don't know what you're trying to say. I can't help you with that request.")
                 after_ingredients = input("Do you [1] have more questions/changes or [2] want to get started cooking?")

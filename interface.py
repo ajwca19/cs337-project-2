@@ -223,6 +223,7 @@ def main():
                                 transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                             elif re.search("wheat", allergy_option.lower()):
                                 print("I can try and make this gluten-free to help with that, but it might not be perfect.")
+                                transform_dietary("gluten-free", ingredients, units_list, unit_conversion)
                             elif re.search("meat", allergy_option.lower()):
                                 print("Ah, a meat allergy.")
                                 transform_dietary("vegetarian", ingredients, units_list, unit_conversion)
@@ -231,7 +232,38 @@ def main():
                     else:
                         #transforming to global cuisine
                         cuisine_result = input("What type of cuisine do you want to convert this recipe to? Say \"list\" for a list of cuisines that I'm familiar with")
+                        if re.search("list", cuisine_result.lower()):
+                            print("I have knowledge about the following cuisines: Chinese, South Asian, Italian, Mexican, Japanese, German, Korean, and Greek")
+                            cuisine_result = input("What type of cuisine do you want to convert this recipe to?")
+                        if re.search("chin[a|ese]", cuisine_result.lower()):
+                            #chinese cooking
+                            print("I can do Chinese!")
+                            transform_cuisine("Chinese", ingredients, units_list, unit_conversion)
+                        elif re.search("desi|india(n)?|(south asia(n)?)", cuisine_result.lower()):
+                            print("Let's do South Asian!")
+                            transform_cuisine("South Asian", ingredients, units_list, unit_conversion)
+                        elif re.search("ital[y|ian]", cuisine_result.lower()):
+                            print("Andiamo!")
+                            transform_cuisine("Italian", ingredients, units_list, unit_conversion)
+                        elif re.search("mexic[o|an]", cuisine_result.lower()):
+                            print("¡Vamanos!")
+                            transform_cuisine("Mexican", ingredients, units_list, unit_conversion)
+                        elif re.search("japan(ese)?", cuisine_result.lower()):
+                            print("Japanese sounds great!")
+                            transform_cuisine("Japanese", ingredients, units_list, unit_conversion)
+                        elif re.search("german(y)?", cuisine_result.lower()):
+                            print("German is good!")
+                            transform_cuisine("German", ingredients, units_list, unit_conversion)
+                        elif re.search("korea(n)?", cuisine_result.lower()):
+                            print("Korean? Yum!")
+                            transform_cuisine("Korean", ingredients, units_list, unit_conversion)
+                        elif re.search("gree[k|ce]", cuisine_result.lower()):
+                            print("Go Greek!")
+                            transform_cuisine("Greek", ingredients, units_list, unit_conversion)
+                        else:
+                            print("I don't recognize that country. Better luck next time!")
                         
+                            
                         
                 else:
                     print("Sorry, I don't know what you're trying to say. I can't help you with that request.")
