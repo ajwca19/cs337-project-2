@@ -711,10 +711,12 @@ def transform_dietary(restriction, ingredients_list, units_list, units_conversio
         modified = False
         for i in range(len(parsed_ingredient)):
             token = parsed_ingredient[i]
+            #print("Working with " + token.text)
             if token.lemma_ in units_list or token.text in units_conversion.keys():
                 continue
             elif token.text in ["of", "in"]:
                 continue
+            #print("I'm testing " + token.lemma_)
             if token.lemma_ in diet_dictionary[restriction]:
                 #I can't eat this thing on my diet!
                 modified = True
@@ -733,6 +735,7 @@ def transform_dietary(restriction, ingredients_list, units_list, units_conversio
                 break
             if i < len(parsed_ingredient) - 1:
                 bigram = token.text + " " + parsed_ingredient[i+1].text
+                #print("I'm testing " + bigram)
                 if bigram in diet_dictionary[restriction]:
                     modified = True
                     #I can't eat this thing on my diet!
@@ -748,7 +751,7 @@ def transform_dietary(restriction, ingredients_list, units_list, units_conversio
                             print("Hope that it works out!")
                     else:
                         print("I think that you can substitute " + bigram + " with: " + pretty_list_print(substitutes))
-                break
+                    break
         if modified == False:
             print("As far as I know, you're able to use " + ingredient + " in this recipe.")
     return
@@ -794,11 +797,12 @@ def transform_cuisine(cuisine, ingredients_list, units_list, units_conversion):
 def potential_subs_restriction(ingredient, restriction):
     diet_dictionary = ingredient_substitution.diet_dictionary
     substitution_dictionary = ingredient_substitution.substitution_dictionary
-    all_subs = substitution_dictionary[ingredient]
     valid_subs = []
-    for potential_ingredient in all_subs:
-        if potential_ingredient not in diet_dictionary[restriction]:
-            valid_subs.append(potential_ingredient)
+    if ingredient in substitution_dictionary.keys():
+        all_subs = substitution_dictionary[ingredient]
+        for potential_ingredient in all_subs:
+            if potential_ingredient not in diet_dictionary[restriction]:
+                valid_subs.append(potential_ingredient)
     return valid_subs
     
 def potential_subs_cuisine(ingredient, cuisine):

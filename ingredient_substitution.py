@@ -8,6 +8,7 @@ substitution_dictionary = {
 	'corn syrup': ['honey'],
 	'cottage cheese': ["farmer's cheese", 'ricotta cheese', 'tofu'],
 	'cracker crumbs': ['bread crumbs', 'matzo meal', 'ground oats'],
+    'cream cheese': ['mascarpone cheese', 'ricotta cheese', 'tofu', 'coconut cream'],
 	'light cream': ['evaporated milk'],
 	'cream of tartar': ['lemon juice', 'vinegar'],
 	'egg': ['pureed tofu', 'mayonnaise', 'powdered flax seed'],
